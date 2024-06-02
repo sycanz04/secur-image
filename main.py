@@ -27,7 +27,7 @@ def createAccount():
 def loginAccount():
     username = input("Username: ")
     passwd = input("Password: ").encode('utf-8')
-    mycursor.execute("SELECT username, passwdHash FROM Users WHERE username = %s", (username,))
+    mycursor.execute("SELECT username, passwdHash FROM Users WHERE username = %s", (username))
 
     row = mycursor.fetchone()
     if row is None:
@@ -44,8 +44,31 @@ def loginAccount():
             print("User does not exist!")
 
 
+def deleteAccount():
+    username = input("Username: ")
+    passwd = input("Password: ").encode('utf-8')
+    mycursor.execute("SELECT username, passwdHash FROM Users WHERE username = %s", (username,))
+
+    row = mycursor.fetchone()
+    if row is None:
+        print("User does not exist!")
+    else:
+        user = row[0]
+        hashedPasswd = row[1]
+        if user == username:
+            if bcrypt.checkpw(passwd, hashedPasswd.encode('utf-8')):
+                mycursor.execute("DELETE FROM Users WHERE username = %s", (username,))
+                conn.commit()
+                print(f"Succefully removed {username}'s account!")
+            else:
+                print("Incorrect username or password")
+        else:
+            print("User does not exist!")
+
+
+
 def main():
-    loginAccount()
+    deleteAccount()
 #     print("""
 # Options
 # 1. Generate
@@ -55,7 +78,7 @@ def main():
 # 5. Quit\n
 # """)
 #     prompt = input("What do you want to do? ")
-#
+# 
 #     if prompt == "1":
 #         platform = input("Platform: ")
 #         enc(platform)
@@ -80,3 +103,4 @@ if __name__ == "__main__":
 
 mycursor.close()
 conn.close()
+
