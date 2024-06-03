@@ -10,32 +10,52 @@ cf = os.path.expanduser('~/img')
 ef = os.path.join(baseDir, 'gamePrice')
 
 
-def hidden(cFile, eFile):
+def hidden(platform, cFile, conn, mycursor, username):
     cfPath = os.path.join(cf, cFile)
-    efPath = os.path.join(ef, f"{eFile}.txt")
+    efPath = os.path.join(ef, f"{platform}.txt")
 
     if os.path.exists(cfPath):
         if os.path.exists(efPath):
             embedCommand = f"steghide embed -cf {cfPath} -ef {efPath}"
             os.system(embedCommand)
-            print(f"{eFile} successfully embedded in {cFile}")
+            print(f"{platform}.txt successfully embedded in {cFile}...\n")
+            with open(cfPath, "rb") as file:
+                binData = file.read()
+            sql = "INSERT INTO Images(photo, username) VALUES (%s, %s)"
+            mycursor.execute(sql, (binData, username))
+            conn.commit()
+            print("Stored in database!")
         else:
             print(f"{efPath} DNE!")
     else:
         print(f"{cfPath} DNE!")
 
 
-def extract(coverFile):
-    cfPath = os.path.join(baseDir, coverFile)
+def extract(platform, conn, mycursor, username):
+    cfPath = os.path.join(baseDir, platform)
 
-    if os.path.exists(cfPath):
-        embedCommand = f"steghide extract -sf {cfPath}"
-        os.system(embedCommand)
+    sql = "SELECT username, photo FROM Images WHERE username = %s"
+    mycursor.execute(sql, (platform, ))
+    result = mycursor.fetchone()[1]
+
+    storeFilePath = os.path.join(cf, f"{platform}.jpg")
+    if os.path.exists(storeFilePath):
+        with open(storeFilePath, 'wb') as file:
+            file.write(result)
+            file.close()
     else:
-        print(f"{cfPath} DNE!")
+        with open(storeFilePath, 'wb') as file:
+            file.write(result)
+            file.close()
+
+    # if os.path.exists(cfPath):
+    #     embedCommand = f"steghide extract -sf {cfPath}"
+    #     os.system(embedCommand)
+    # else:
+    #     print(f"{cfPath} DNE!")
 
 
-def hid():
+def hid(conn, mycursor, userId):
     print("1. Embed ")
     print("2. Extract")
     option = input("Option: ")
@@ -43,13 +63,8 @@ def hid():
     if option == "1":
         cfName = input("Cover file format: ")
         efName = input("Embed file format: ")
-
-        hidden(cfName, efName)
+        hidden(cfName, efName, conn, mycursor, userId)
 
     elif option == "2":
         cfName = input("Cover file format: ")
         extract(cfName)
-
-
-if __name__ == "__main__":
-    hid()

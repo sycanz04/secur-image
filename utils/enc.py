@@ -16,11 +16,11 @@ encpassDir = os.path.join(baseDir, "gamePrice")
 signDir = os.path.join(baseDir, "sign")
 
 
-def enc(name):
-    pubPath = os.path.join(pubDir, f"pub{name}.pem")
-    privPath = os.path.join(privDir, f"priv{name}.pem")
-    encpassPath = os.path.join(encpassDir, f"{name}.txt")
-    signPath = os.path.join(signDir, f"{name}Signature.txt")
+def enc(platform, conn, mycursor, userId):
+    pubPath = os.path.join(pubDir, f"pub{platform}.pem")
+    privPath = os.path.join(privDir, f"priv{platform}.pem")
+    encpassPath = os.path.join(encpassDir, f"{platform}.txt")
+    signPath = os.path.join(signDir, f"{platform}Signature.txt")
 
     # Generate pub and priv keys
     (pubKey, privKey) = rsa.newkeys(1024)
@@ -63,12 +63,5 @@ def enc(name):
         with open(signPath, 'wb') as file:
             file.write(signature)
 
-    cont = input("Do you want to hide it in an image?(y/n) ")
-
-    if cont == "y":
-        cfName = input("Cover file format: ")
-        efName = input("Embed file format: ")
-        hidden(cfName, efName)
-    elif cont == "n":
-        print("See you again!")
-        exit()
+    cfName = input("Cover file format: ")
+    hidden(platform, cfName, conn, mycursor, userId)

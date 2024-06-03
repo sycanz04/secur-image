@@ -1,15 +1,5 @@
-import cred
-import mysql.connector
 import bcrypt
-
-
-conn = mysql.connector.connect(
-    host=cred.hostname,
-    user=cred.username,
-    passwd=cred.password,
-    database=cred.databaseName
-)
-mycursor = conn.cursor()
+from utils.menus import menu
 
 
 def createAccount(username, passwd, conn, mycursor):
@@ -20,7 +10,7 @@ def createAccount(username, passwd, conn, mycursor):
 
 
 def loginAccount(username, passwd, conn, mycursor):
-    mycursor.execute("SELECT username, passwdHash FROM Users WHERE username = %s", (username))
+    mycursor.execute("SELECT username, passwdHash FROM Users WHERE username = %s", (username, ))
 
     row = mycursor.fetchone()
     if row is None:
@@ -30,7 +20,8 @@ def loginAccount(username, passwd, conn, mycursor):
         hashedPasswd = row[1]
         if user == username:
             if bcrypt.checkpw(passwd, hashedPasswd.encode('utf-8')):
-                print(f"Welcome, {username}!")
+                print(f"\nWelcome, {username}!\n")
+                menu(conn, mycursor, username)
             else:
                 print("Incorrect username or password")
         else:
@@ -57,7 +48,3 @@ def deleteAccount(username, passwd, conn, mycursor):
                 print("Incorrect username or password")
         else:
             print("User does not exist!")
-
-
-mycursor.close()
-conn.close()
