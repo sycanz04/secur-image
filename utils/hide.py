@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from utils.dec import dec
 
 # Load env var from .env files
 load_dotenv()
@@ -39,27 +40,41 @@ def hidden(platform, cFile, conn, mycursor, username):
 
 
 def extract(platform, conn, mycursor, username):
-    cfPath = os.path.join(baseDir, platform)
+    mycursor.execute("Select userId from Users WHERE username = %s", (username,))
+    userIdResult = mycursor.fetchone()
 
-    sql = "SELECT username, photo FROM Images WHERE username = %s"
-    mycursor.execute(sql, (platform, ))
-    result = mycursor.fetchone()[1]
+    if userIdResult:
+        userId = userIdResult[0]
+    else:
+        raise ValueError("User not found")
 
-    storeFilePath = os.path.join(cf, f"{platform}.jpg")
+    mycursor.execute("""SELECT Images.photo
+                     FROM Images
+                     INNER JOIN Users ON Images.userId = Users.userId
+                     WHERE Images.platform = %s AND Users.userId = %s""", (platform, userId))
+    imageResult = mycursor.fetchone()
+    if userIdResult:
+        image = imageResult[0]
+    else:
+        raise ValueError("Image not found")
+    conn.commit()
+
+    storeFilePath = os.path.join(cf, f"{username}{platform}.jpg")
     if os.path.exists(storeFilePath):
         with open(storeFilePath, 'wb') as file:
-            file.write(result)
+            file.write(image)
             file.close()
     else:
         with open(storeFilePath, 'wb') as file:
-            file.write(result)
+            file.write(image)
             file.close()
 
-    # if os.path.exists(cfPath):
-    #     embedCommand = f"steghide extract -sf {cfPath}"
-    #     os.system(embedCommand)
-    # else:
-    #     print(f"{cfPath} DNE!")
+    if os.path.exists(storeFilePath):
+        embedCommand = f"steghide extract -sf {storeFilePath}"
+        os.system(embedCommand)
+        dec(platform)
+    else:
+        print(f"{storeFilePath} DNE!")
 
 
 def hid(conn, mycursor, userId):

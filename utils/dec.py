@@ -9,10 +9,10 @@ privDir = os.path.join(baseDir, 'keys/priv')
 encpassDir = os.path.join(baseDir, 'gamePrice')
 
 
-def dec(name):
+def dec(platform):
     try:
-        privPath = os.path.join(privDir, f"priv{name}.pem")
-        encpassPath = os.path.join(encpassDir, f"{name}.txt")
+        privPath = os.path.join(privDir, f"priv{platform}.pem")
+        encpassPath = os.path.join(encpassDir, f"{platform}.txt")
 
         # Retrieve priv key
         with open(privPath, "rb") as files:
