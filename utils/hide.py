@@ -21,10 +21,17 @@ def hidden(platform, cFile, conn, mycursor, username):
             print(f"{platform}.txt successfully embedded in {cFile}...\n")
             with open(cfPath, "rb") as file:
                 binData = file.read()
-            sql = "INSERT INTO Images(photo, username) VALUES (%s, %s)"
-            mycursor.execute(sql, (binData, username))
+
+            mycursor.execute("SELECT userId FROM Users WHERE username = %s", (username, ))
+            row = mycursor.fetchone()
+            if row is None:
+                print("User does not exist!")
+            else:
+                userId = row[0]
+                mycursor.execute("INSERT INTO Images(platform, photo, userId) VALUES (%s, %s, %s)", (platform, binData, userId))
             conn.commit()
             print("Stored in database!")
+
         else:
             print(f"{efPath} DNE!")
     else:
