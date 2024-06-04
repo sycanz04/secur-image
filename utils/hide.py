@@ -75,18 +75,3 @@ def extract(platform, conn, mycursor, username):
         dec(platform)
     else:
         print(f"{storeFilePath} DNE!")
-
-
-def hid(conn, mycursor, userId):
-    print("1. Embed ")
-    print("2. Extract")
-    option = input("Option: ")
-
-    if option == "1":
-        cfName = input("Cover file format: ")
-        efName = input("Embed file format: ")
-        hidden(cfName, efName, conn, mycursor, userId)
-
-    elif option == "2":
-        cfName = input("Cover file format: ")
-        extract(cfName)

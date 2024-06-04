@@ -1,5 +1,6 @@
 import rsa
 import os
+from utils.ver import ver
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,6 +26,11 @@ def dec(platform):
         # Decode message
         clearMessage = rsa.decrypt(encPass, privKey)
 
-        print("Clear message: " + clearMessage.decode())
+        try:
+            ver(platform)
+            print("Clear message: " + clearMessage.decode())
+        except Exception:
+            print("Verification for signature failed!")
+
     except Exception as e:
         print(f"An error occured: {e}")

@@ -13,10 +13,10 @@ encpassDir = os.path.join(baseDir, "gamePrice")
 signDir = os.path.join(baseDir, "sign")
 
 
-def ver(name):
-    signPath = os.path.join(signDir, f"{name}Signature.txt")
-    pubPath = os.path.join(pubDir, f"pub{name}.pem")
-    encpassPath = os.path.join(encpassDir, f"{name}.txt")
+def ver(platform):
+    signPath = os.path.join(signDir, f"{platform}Signature.txt")
+    pubPath = os.path.join(pubDir, f"pub{platform}.pem")
+    encpassPath = os.path.join(encpassDir, f"{platform}.txt")
 
     if os.path.exists(signPath):
         with open(signPath, 'rb') as file:

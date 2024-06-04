@@ -11,7 +11,8 @@ Options
 1. Generate
 2. Decrypt
 3. Verify
-4. Quit\n
+4. Delete Image
+5. Quit\n
 """)
     prompt = input("What do you want to do? ")
 
@@ -21,7 +22,6 @@ Options
     elif prompt == "2":
         platform = input("Platform: ")
         extract(platform, conn, mycursor, username)
-        #dec(platform)
     elif prompt == "3":
         platform = input("Platform: ")
         ver(platform)
