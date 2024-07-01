@@ -12,6 +12,18 @@ conn = mysql.connector.connect(
 )
 mycursor = conn.cursor()
 
+mycursor.execute("""CREATE TABLE IF NOT EXISTS Users
+                    (userId int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                     username VARCHAR(50) NOT NULL,
+                     passwdHash VARCHAR(255) NOT NULL,
+                     secretKey VARCHAR(255) NOT NULL);""")
+mycursor.execute("""CREATE TABLE IF NOT EXISTS Images
+                    (photoId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                     platform VARCHAR(50) NOT NULL,
+                     photo LONGBLOB NOT NULL,
+                     userId INT NOT NULL,
+                     FOREIGN KEY(userId) REFERENCES Users(userId));""")
+
 
 def main():
     print("""

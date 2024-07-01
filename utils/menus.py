@@ -1,6 +1,7 @@
-from utils.enc import enc
-from utils.dec import dec
 from utils.ver import ver
+from utils.enc import enc
+from utils.ls import listImage
+from utils.gen import genPass
 from utils.hide import extract
 from utils.delete import deleteImage
 
@@ -8,29 +9,38 @@ from utils.delete import deleteImage
 def menu(conn, mycursor, username):
     print("""
 Options
-1. Generate
-2. Decrypt
-3. Verify
-4. Delete Image
-5. Quit\n
+1. Insert
+2. Generate
+3. Decrypt
+4. Verify
+5. List Images
+6. Delete Image
+7. Quit\n
 """)
     prompt = input("What do you want to do? ")
-
-    if prompt == "1":
-        platform = input("Platform: ")
-        enc(platform, conn, mycursor, username)
-    elif prompt == "2":
-        platform = input("Platform: ")
-        extract(platform, conn, mycursor, username)
-    elif prompt == "3":
-        platform = input("Platform: ")
-        ver(platform)
-    elif prompt == "4":
-        id = input("Image ID: ")
-        deleteImage(id, conn, mycursor, username)
-    elif prompt == "5":
-        print("Goodbye!")
-        quit()
-    else:
-        print("\nInvalid option. Pick again!\n")
-        exit()
+    match prompt:
+        case "1":
+            platform = input("Platform: ")
+            passwd = input("Passwd: ")
+            enc(passwd, platform, conn, mycursor, username)
+        case "2":
+            platform = input("Platform: ")
+            genPass(platform, conn, mycursor, username)
+        case "3":
+            platform = input("Platform: ")
+            extract(platform, conn, mycursor, username)
+        case  "4":
+            platform = input("Platform: ")
+            ver(platform)
+        case "5":
+            passwd = input("Passwd: ")
+            listImage(passwd, conn, mycursor, username)
+        case "6":
+            platform = input("Platform: ")
+            deleteImage(platform, conn, mycursor, username)
+        case "7":
+            print("Goodbye!")
+            quit()
+        case _:
+            print("\nInvalid option. Pick again!\n")
+            exit()
