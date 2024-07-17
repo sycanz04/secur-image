@@ -33,8 +33,7 @@ Options
             platform = input("Platform: ")
             ver(platform)
         case "5":
-            passwd = input("Passwd: ")
-            listImage(passwd, conn, mycursor, username)
+            listImage(conn, mycursor, username)
         case "6":
             platform = input("Platform: ")
             deleteImage(platform, conn, mycursor, username)

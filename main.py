@@ -2,15 +2,29 @@
 from utils.account import loginAccount, createAccount, deleteAccount
 import cred
 import mysql.connector
+from mysql.connector import Error
 
 
-conn = mysql.connector.connect(
-    host=cred.hostname,
-    user=cred.username,
-    passwd=cred.password,
-    database=cred.databaseName
-)
-mycursor = conn.cursor()
+try:
+    conn = mysql.connector.connect(
+        host=cred.hostname,
+        user=cred.username,
+        passwd=cred.passwd,
+    )
+
+    if conn.is_connected():
+        mycursor = conn.cursor()
+        # Create database if not exist
+        mycursor.execute(f"CREATE DATABASE IF NOT EXISTS {cred.database};")
+        print(f"Database '{cred.database}' created or already existed.")
+
+        # Use the newly created database
+        mycursor.execute(f"USE {cred.database};")
+        print(f"Using database '{cred.database}'.")
+
+except Error as e:
+    print(f"Error: {e}")
+    quit()
 
 mycursor.execute("""CREATE TABLE IF NOT EXISTS Users
                     (userId int NOT NULL AUTO_INCREMENT PRIMARY KEY,
