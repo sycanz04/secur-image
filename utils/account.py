@@ -1,7 +1,6 @@
 import bcrypt
 import pyotp
 import qrcode
-from utils.menus import menu
 
 
 def loginAccount(username, passwd, conn, mycursor):
@@ -9,7 +8,7 @@ def loginAccount(username, passwd, conn, mycursor):
 
     row = mycursor.fetchone()
     if row is None:
-        print("User does not exist!")
+        return False, "User does not exist!"
     else:
         user = row[0]
         hashedPasswd = row[1]
@@ -19,17 +18,12 @@ def loginAccount(username, passwd, conn, mycursor):
 
         if user == username:
             if bcrypt.checkpw(passwd, hashedPasswd.encode('utf-8')):
-                otpPrompt = input("Enter OTP code: ")
-
-                if totp.verify(otpPrompt):
-                    print(f"\nWelcome, {username}!\n")
-                    menu(conn, mycursor, username)
-                else:
-                    print("Invalid OTP. Please try again.")
+                # OTP will be validated in login function
+                return True, secretKey
             else:
-                print("Incorrect username or password")
+                return False, "Incorrect username or password"
         else:
-            print("User does not exist!")
+            return False, "User does not exist!"
 
 def createAccount(username, passwd, conn, mycursor):
     try:

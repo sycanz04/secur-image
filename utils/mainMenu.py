@@ -1,8 +1,12 @@
 from utils.account import loginAccount, createAccount, deleteAccount
+from utils.second import menu
 import cred
 import mysql.connector
+import bcrypt
+import pyotp
 from mysql.connector import Error
 from tkinter import *
+from tkinter import messagebox
 import tkinter as tk
 
 try:
@@ -67,7 +71,43 @@ def login(window, frame1):
     def handleLogin():
         username = usernameTb.get()
         passwd = passwdTb.get().encode('utf-8')
-        loginAccount(username, passwd, conn, mycursor)
+        success, message = loginAccount(username, passwd, conn, mycursor)
+        for widget in frame2.grid_slaves(row=3):
+            widget.destroy()
+        
+        if success:
+            secretKey = message
+
+            # OTP window
+            otpFrame = tk.Toplevel(frame2)
+            otpFrame.title("Verify OTP")
+
+            # OTP Prompt
+            otpT = tk.Label(otpFrame, text="Enter the OTP on Google Authenticator to verify you're the owner")
+            otpT.pack()
+            otpTb = tk.Entry(otpFrame, show='*')
+            otpTb.pack()
+
+            def verifyOTP():
+                otp = otpTb.get()
+                totp = pyotp.TOTP(secretKey)
+                if totp.verify(otp):
+                    otpFrame.destroy()
+                    menu(window, frame2, username)
+                else:
+                    failT = tk.Label(otpFrame, text="Invalid OTP. Please try again.", fg='#ff0000')
+                    failT.pack()
+                    otpTb.delete(0, tk.END)
+
+            # OTP submit button
+            otpButt = Button(otpFrame, text='Submit', command=verifyOTP)
+            otpButt.pack()
+
+        else:
+            failT = tk.Label(frame2, text=message, fg='#ff0000')
+            failT.grid(row=3, column=0, columnspan=2)
+            usernameTb.delete(0, tk.END)
+            passwdTb.delete(0, tk.END)
         
     submitButton = tk.Button(frame2, 
                         text="Login",
@@ -95,6 +135,8 @@ def create(window, frame1):
         username = usernameTb.get()
         passwd = passwdTb.get().encode('utf-8')
         repasswd = rePasswdTb.get().encode('utf-8')
+        for widget in frame3.grid_slaves(row=4):
+            widget.destroy()
 
         if not username or not passwd or not repasswd:
             errorT = tk.Label(frame3, text="*All fields are required!*", fg='#ff0000')
@@ -103,13 +145,32 @@ def create(window, frame1):
 
         if passwd == repasswd:
             success = createAccount(username, passwd, conn, mycursor)
-            user = username.decode()
 
             if success:
-                successT = tk.Label(frame3, text=f"Account {user} created!")
+                successT = tk.Label(frame3, text=f"Account {username} created!")
                 successT.grid(row=4, column=0, columnspan=2)
+
+                # Create popup window
+                popup = Toplevel(frame3)
+                popup.title("OTP Setup")
+
+                # Display text
+                setupT1 = Label(popup, text="To login into your account on SecurImage, you have to setup an OTP.")
+                setupT1.pack()
+                setupT2 = Label(popup, text="Scan below QR code with Google Authenticator app, DO NOT SHOW IT TO ANYONE!")
+                setupT2.pack()
+
+                # Display image
+                img = tk.PhotoImage(file="totp.png")
+                imgLabel = tk.Label(popup, image=img)
+                imgLabel.image = img
+                imgLabel.pack()
+
+                #Display done button
+                doneButt = Button(popup, text="Done", command=popup.destroy)
+                doneButt.pack()
             else:
-                failT = tk.Label(frame3, text=f"Account {user} not created!", fg='#ff0000')
+                failT = tk.Label(frame3, text=f"Account {username} not created!", fg='#ff0000')
                 failT.grid(row=4, column=0, columnspan=2)
         else:
             mismatchT = tk.Label(frame3, text="Passwords don't match!", fg='#ff0000')
@@ -138,21 +199,27 @@ def delete(window, frame1):
     def handleDelete():
         username = usernameTb.get()
         passwd = passwdTb.get().encode('utf-8')
+        for widget in frame4.grid_slaves(row=4):
+            widget.destroy()
 
         if not username or not passwd:
             errorT = tk.Label(frame4, text="*All fields are required!*", fg='#ff0000')
             errorT.grid(row=4, column=0, columnspan=2)
             return
 
-        success, message = deleteAccount(username, passwd, conn, mycursor)
-
-        if success:
-            successT = tk.Label(frame4, text=message)
-            successT.grid(row=4, column=0, columnspan=2)
+        if messagebox.askyesno(title="Confirm Deletion", message=f"Are you sure you want to delete the account {username}?"):
+            success, message = deleteAccount(username, passwd, conn, mycursor)
+            if success:
+                successT = tk.Label(frame4, text=message)
+                successT.grid(row=4, column=0, columnspan=2)
+                
+            else:
+                failT = tk.Label(frame4, text=message, fg='#ff0000')
+                failT.grid(row=4, column=0, columnspan=2)
+                passwdTb.delete(0, tk.END)
         else:
-            failT = tk.Label(frame4, text=message, fg='#ff0000')
-            failT.grid(row=4, column=0, columnspan=2)
-            passwdTb.delete(0, tk.END)
+            cancelT = tk.Label(frame4, text="Account deletion cancelled.", fg='#0000ff')
+            cancelT.grid(row=4, column=0, columnspan=2)
         
     submitButton = tk.Button(frame4, 
                              text="Delete",
