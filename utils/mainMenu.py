@@ -74,6 +74,11 @@ def login(window, frame1):
         success, message = loginAccount(username, passwd, conn, mycursor)
         for widget in frame2.grid_slaves(row=3):
             widget.destroy()
+
+        if not username or not passwd:
+            errorT = tk.Label(frame2, text="*All fields are required!*", fg='#ff0000')
+            errorT.grid(row=3, column=0, columnspan=2)
+            return
         
         if success:
             secretKey = message
@@ -93,9 +98,9 @@ def login(window, frame1):
                 totp = pyotp.TOTP(secretKey)
                 if totp.verify(otp):
                     otpFrame.destroy()
-                    menu(window, frame2, username)
+                    menu(window, frame2, conn, mycursor, username)
                 else:
-                    failT = tk.Label(otpFrame, text="Invalid OTP. Please try again.", fg='#ff0000')
+                    failT = tk.Label(otpFrame, text="*Invalid OTP. Please try again.*", fg='#ff0000')
                     failT.pack()
                     otpTb.delete(0, tk.END)
 
@@ -170,10 +175,10 @@ def create(window, frame1):
                 doneButt = Button(popup, text="Done", command=popup.destroy)
                 doneButt.pack()
             else:
-                failT = tk.Label(frame3, text=f"Account {username} not created!", fg='#ff0000')
+                failT = tk.Label(frame3, text=f"*Account {username} not created!*", fg='#ff0000')
                 failT.grid(row=4, column=0, columnspan=2)
         else:
-            mismatchT = tk.Label(frame3, text="Passwords don't match!", fg='#ff0000')
+            mismatchT = tk.Label(frame3, text="*Passwords don't match!*", fg='#ff0000')
             mismatchT.grid(row=4, column=0, columnspan=2)
             passwdTb.delete(0, tk.END)
             rePasswdTb.delete(0, tk.END)

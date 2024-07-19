@@ -8,7 +8,7 @@ def loginAccount(username, passwd, conn, mycursor):
 
     row = mycursor.fetchone()
     if row is None:
-        return False, "User does not exist!"
+        return False, "*User does not exist!*"
     else:
         user = row[0]
         hashedPasswd = row[1]
@@ -21,9 +21,9 @@ def loginAccount(username, passwd, conn, mycursor):
                 # OTP will be validated in login function
                 return True, secretKey
             else:
-                return False, "Incorrect username or password"
+                return False, "*Incorrect username or password*"
         else:
-            return False, "User does not exist!"
+            return False, "*User does not exist!*"
 
 def createAccount(username, passwd, conn, mycursor):
     try:
@@ -45,7 +45,7 @@ def deleteAccount(username, passwd, conn, mycursor):
         row = mycursor.fetchone()
 
         if row is None:
-            return False, "User does not exist!"
+            return False, "*User does not exist!*"
         else:
             user = row[0]
             hashedPasswd = row[1]
@@ -55,8 +55,8 @@ def deleteAccount(username, passwd, conn, mycursor):
                     conn.commit()
                     return True, f"Succefully removed {username}'s account!"
                 else:
-                    return False, "Incorrect username or password"
+                    return False, "*Incorrect username or password*"
             else:
-                return False, "User does not exist!"
+                return False, "*User does not exist!*"
     except Exception as e:
-        return False, f"Error deleting account: {e}"
+        return False, f"*Error deleting account: {e}*"
