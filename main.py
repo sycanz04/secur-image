@@ -1,47 +1,55 @@
 #! /usr/bin/env python3
-from utils.account import loginAccount, createAccount, deleteAccount
-import cred
-import mysql.connector
+from tkinter import *
+import tkinter as tk
+from utils.mainMenu import login, create, delete
 
-
-conn = mysql.connector.connect(
-    host=cred.hostname,
-    user=cred.username,
-    passwd=cred.password,
-    database=cred.databaseName
-)
-mycursor = conn.cursor()
-
+window = tk.Tk()
+window.title("Secur Image")
+window.geometry('800x500')
+frame1 = Frame(window)
 
 def main():
-    print("""
-Account Options
-1. Login
-2. Signup
-3. Delete
-4. Quit
-""")
-    prompt = input("What do you want to do? ")
+    menuT = tk.Label(frame1, text="Select an option")
+    menuT.pack()
 
-    if prompt == "1":
-        username = input("Username: ")
-        passwd = input("Password: ").encode('utf-8')
-        loginAccount(username, passwd, conn, mycursor)
-    elif prompt == "2":
-        username = input("Username: ")
-        passwd = input("Password: ").encode('utf-8')
-        createAccount(username, passwd, conn, mycursor)
-    elif prompt == "3":
-        username = input("Username: ")
-        passwd = input("Password: ").encode('utf-8')
-        deleteAccount(username, passwd, conn, mycursor)
-    elif prompt == "4":
-        print("Goodbye!")
-        quit()
-    else:
-        print("\nInvalid option. Pick again!\n")
-        main()
+    button1 = tk.Button(frame1, 
+                        text="Login", command=lambda: login(window, frame1),
+                        activebackground="blue", activeforeground="white",
+                        anchor="center", bd=3, bg="lightgray", cursor="hand2",
+                        disabledforeground="gray", fg="black", font=("Arial", 12),
+                        height=2, highlightbackground="black", highlightcolor="green",
+                        highlightthickness=2, justify="center", overrelief="raised",
+                        padx=10, pady=5, width=15, wraplength=100)
+    button1.pack()
+    button2 = tk.Button(frame1, 
+                        text="Signup", command=lambda: create(window, frame1),
+                        activebackground="blue", activeforeground="white",
+                        anchor="center", bd=3, bg="lightgray", cursor="hand2",
+                        disabledforeground="gray", fg="black", font=("Arial", 12),
+                        height=2, highlightbackground="black", highlightcolor="green",
+                        highlightthickness=2, justify="center", overrelief="raised",
+                        padx=10, pady=5, width=15, wraplength=100)
+    button2.pack()
+    button3 = tk.Button(frame1, 
+                        text="Delete", command=lambda: delete(window, frame1),
+                        activebackground="blue", activeforeground="white",
+                        anchor="center", bd=3, bg="lightgray", cursor="hand2",
+                        disabledforeground="gray", fg="black", font=("Arial", 12),
+                        height=2, highlightbackground="black", highlightcolor="green",
+                        highlightthickness=2, justify="center", overrelief="raised",
+                        padx=10, pady=5, width=15, wraplength=100)
+    button3.pack()
+    button4 = tk.Button(frame1, 
+                        text="Quit", command=window.destroy,
+                        activebackground="blue", activeforeground="white",
+                        anchor="center", bd=3, bg="lightgray", cursor="hand2",
+                        disabledforeground="gray", fg="black", font=("Arial", 12),
+                        height=2, highlightbackground="black", highlightcolor="green",
+                        highlightthickness=2, justify="center", overrelief="raised",
+                        padx=10, pady=5, width=15, wraplength=100)
+    button4.pack()
 
+frame1.pack()
+main()
 
-if __name__ == "__main__":
-    main()
+window.mainloop()

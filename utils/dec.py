@@ -1,9 +1,7 @@
 import rsa
 import os
 from utils.ver import ver
-from dotenv import load_dotenv
 
-load_dotenv()
 
 baseDir = os.path.expanduser(os.getenv('BASE_DIR', '~/hello'))
 privDir = os.path.join(baseDir, 'keys/priv')

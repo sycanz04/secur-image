@@ -1,9 +1,10 @@
 import string
 import random
+from utils.enc import enc
 
 
 # Generates passwords
-def genPass():
+def genPass(platform, conn, mycursor, userId):
     asciiLower = string.ascii_lowercase
     asciiUpper = string.ascii_uppercase
     asciiNumbers = string.digits
@@ -20,4 +21,4 @@ def genPass():
     random.shuffle(listPass)
     finalPass = ''.join(listPass)
 
-    return finalPass
+    enc(finalPass, platform, conn, mycursor, userId)

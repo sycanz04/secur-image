@@ -1,9 +1,5 @@
 import os
-from dotenv import load_dotenv
 from utils.dec import dec
-
-# Load env var from .env files
-load_dotenv()
 
 
 baseDir = os.path.expanduser(os.getenv('BASE_DIR', '~/hello'))

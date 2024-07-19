@@ -1,11 +1,6 @@
 import rsa
 import os
-from utils.gen import genPass
 from utils.hide import hidden
-from dotenv import load_dotenv
-
-# Load env var from .env files
-load_dotenv()
 
 
 # Define paths
@@ -16,7 +11,7 @@ encpassDir = os.path.join(baseDir, "gamePrice")
 signDir = os.path.join(baseDir, "sign")
 
 
-def enc(platform, conn, mycursor, userId):
+def enc(passw, platform, conn, mycursor, username):
     pubPath = os.path.join(pubDir, f"pub{platform}.pem")
     privPath = os.path.join(privDir, f"priv{platform}.pem")
     encpassPath = os.path.join(encpassDir, f"{platform}.txt")
@@ -40,8 +35,6 @@ def enc(platform, conn, mycursor, userId):
         with open(privPath, 'wb') as file:
             file.write(privKey.save_pkcs1("PEM"))
 
-    # Generates passwords
-    passw = genPass()
     # Encrypting messages with pub key
     encryptedMessage = rsa.encrypt(passw.encode(), pubKey)
 
@@ -64,4 +57,4 @@ def enc(platform, conn, mycursor, userId):
             file.write(signature)
 
     cfName = input("Cover file format: ")
-    hidden(platform, cfName, conn, mycursor, userId)
+    hidden(platform, cfName, conn, mycursor, username)
