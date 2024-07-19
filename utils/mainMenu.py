@@ -65,8 +65,8 @@ def login(window, frame1):
     usernameTb, passwdTb = prompt(frame2)
 
     def handleLogin():
-        username = usernameTb.get()
-        passwd = passwdTb.get()
+        username = usernameTb.get().encode('utf-8')
+        passwd = passwdTb.get().encode('utf-8')
         loginAccount(username, passwd, conn, mycursor)
         
     submitButton = tk.Button(frame2, 
@@ -87,9 +87,17 @@ def create(window, frame1):
     usernameTb, passwdTb = prompt(frame3)
 
     def handleCreate():
-        username = usernameTb.get()
-        passwd = passwdTb.get()
-        loginAccount(username, passwd, conn, mycursor)
+        username = usernameTb.get().encode('utf-8')
+        passwd = passwdTb.get().encode('utf-8')
+        success = createAccount(username, passwd, conn, mycursor)
+        user = username.decode()
+
+        if success:
+            successT = tk.Label(frame3, text=f"Account {user} created!")
+            successT.grid(row=3, column=0, columnspan=2)
+        else:
+            failT = tk.Label(frame3, text=f"Account {user} not created!")
+            failT.grid(row=3, column=0, columnspan=2)
         
     submitButton = tk.Button(frame3, 
                              text="Sign Up",
@@ -100,6 +108,7 @@ def create(window, frame1):
                              text="Cancel",
                              command=lambda: returnMain(frame3, frame1))
     returnButton.grid(row=2, column=0)
+    
 
 def delete(window, frame1):
     frame1.pack_forget()
@@ -109,9 +118,9 @@ def delete(window, frame1):
     usernameTb, passwdTb = prompt(frame4)
 
     def handleDelete():
-        username = usernameTb.get()
-        passwd = passwdTb.get()
-        loginAccount(username, passwd, conn, mycursor)
+        username = usernameTb.get().encode('utf-8')
+        passwd = passwdTb.get().encode('utf-8')
+        deleteAccount(username, passwd, conn, mycursor)
         
     submitButton = tk.Button(frame4, 
                              text="Delete",

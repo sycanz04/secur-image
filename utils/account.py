@@ -5,16 +5,19 @@ from utils.menus import menu
 
 
 def createAccount(username, passwd, conn, mycursor):
-    hashed = bcrypt.hashpw(passwd, bcrypt.gensalt())
-    secretKey = pyotp.random_base32()
+    try:
+        hashed = bcrypt.hashpw(passwd, bcrypt.gensalt())
+        secretKey = pyotp.random_base32()
 
-    uri = pyotp.totp.TOTP(secretKey).provisioning_uri(name=username, issuer_name="securImage")
-    qrcode.make(uri).save("totp.png")
+        uri = pyotp.totp.TOTP(secretKey).provisioning_uri(name=username, issuer_name="securImage")
+        qrcode.make(uri).save("totp.png")
 
-    mycursor.execute("INSERT INTO Users(username, passwdHash, secretKey) values (%s, %s, %s)", (username, hashed, secretKey))
-    print("Account created!")
+        mycursor.execute("INSERT INTO Users(username, passwdHash, secretKey) values (%s, %s, %s)", (username, hashed, secretKey))
+        conn.commit()
+        return True
+    except Exception as e:
+        return False
 
-    conn.commit()
 
 
 def loginAccount(username, passwd, conn, mycursor):
