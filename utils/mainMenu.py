@@ -65,7 +65,7 @@ def login(window, frame1):
     usernameTb, passwdTb = prompt(frame2)
 
     def handleLogin():
-        username = usernameTb.get().encode('utf-8')
+        username = usernameTb.get()
         passwd = passwdTb.get().encode('utf-8')
         loginAccount(username, passwd, conn, mycursor)
         
@@ -86,28 +86,46 @@ def create(window, frame1):
 
     usernameTb, passwdTb = prompt(frame3)
 
-    def handleCreate():
-        username = usernameTb.get().encode('utf-8')
-        passwd = passwdTb.get().encode('utf-8')
-        success = createAccount(username, passwd, conn, mycursor)
-        user = username.decode()
-
-        if success:
-            successT = tk.Label(frame3, text=f"Account {user} created!")
-            successT.grid(row=3, column=0, columnspan=2)
-        else:
-            failT = tk.Label(frame3, text=f"Account {user} not created!")
-            failT.grid(row=3, column=0, columnspan=2)
+    rePasswordT = tk.Label(frame3, text="Re-enter Password")
+    rePasswordT.grid(row=2, column=0)
+    rePasswdTb = Entry(frame3, show='*')
+    rePasswdTb.grid(row=2, column=1)
         
+    def handleCreate():
+        username = usernameTb.get()
+        passwd = passwdTb.get().encode('utf-8')
+        repasswd = rePasswdTb.get().encode('utf-8')
+
+        if not username or not passwd or not repasswd:
+            errorT = tk.Label(frame3, text="*All fields are required!*", fg='#ff0000')
+            errorT.grid(row=4, column=0, columnspan=2)
+            return
+
+        if passwd == repasswd:
+            success = createAccount(username, passwd, conn, mycursor)
+            user = username.decode()
+
+            if success:
+                successT = tk.Label(frame3, text=f"Account {user} created!")
+                successT.grid(row=4, column=0, columnspan=2)
+            else:
+                failT = tk.Label(frame3, text=f"Account {user} not created!", fg='#ff0000')
+                failT.grid(row=4, column=0, columnspan=2)
+        else:
+            mismatchT = tk.Label(frame3, text="Passwords don't match!", fg='#ff0000')
+            mismatchT.grid(row=4, column=0, columnspan=2)
+            passwdTb.delete(0, tk.END)
+            rePasswdTb.delete(0, tk.END)
+
     submitButton = tk.Button(frame3, 
                              text="Sign Up",
                              command=handleCreate)
-    submitButton.grid(row=2, column=1)
+    submitButton.grid(row=3, column=1)
 
     returnButton = tk.Button(frame3,
                              text="Cancel",
                              command=lambda: returnMain(frame3, frame1))
-    returnButton.grid(row=2, column=0)
+    returnButton.grid(row=3, column=0)
     
 
 def delete(window, frame1):
@@ -118,16 +136,30 @@ def delete(window, frame1):
     usernameTb, passwdTb = prompt(frame4)
 
     def handleDelete():
-        username = usernameTb.get().encode('utf-8')
+        username = usernameTb.get()
         passwd = passwdTb.get().encode('utf-8')
-        deleteAccount(username, passwd, conn, mycursor)
+
+        if not username or not passwd:
+            errorT = tk.Label(frame4, text="*All fields are required!*", fg='#ff0000')
+            errorT.grid(row=4, column=0, columnspan=2)
+            return
+
+        success, message = deleteAccount(username, passwd, conn, mycursor)
+
+        if success:
+            successT = tk.Label(frame4, text=message)
+            successT.grid(row=4, column=0, columnspan=2)
+        else:
+            failT = tk.Label(frame4, text=message, fg='#ff0000')
+            failT.grid(row=4, column=0, columnspan=2)
+            passwdTb.delete(0, tk.END)
         
     submitButton = tk.Button(frame4, 
                              text="Delete",
                              command=handleDelete)
-    submitButton.grid(row=2, column=1)
+    submitButton.grid(row=3, column=1)
 
     returnButton = tk.Button(frame4,
                              text="Cancel",
                              command=lambda: returnMain(frame4, frame1))
-    returnButton.grid(row=2, column=0)
+    returnButton.grid(row=3, column=0)

@@ -4,22 +4,6 @@ import qrcode
 from utils.menus import menu
 
 
-def createAccount(username, passwd, conn, mycursor):
-    try:
-        hashed = bcrypt.hashpw(passwd, bcrypt.gensalt())
-        secretKey = pyotp.random_base32()
-
-        uri = pyotp.totp.TOTP(secretKey).provisioning_uri(name=username, issuer_name="securImage")
-        qrcode.make(uri).save("totp.png")
-
-        mycursor.execute("INSERT INTO Users(username, passwdHash, secretKey) values (%s, %s, %s)", (username, hashed, secretKey))
-        conn.commit()
-        return True
-    except Exception as e:
-        return False
-
-
-
 def loginAccount(username, passwd, conn, mycursor):
     mycursor.execute("SELECT username, passwdHash, secretKey FROM Users WHERE username = %s", (username, ))
 
@@ -47,22 +31,38 @@ def loginAccount(username, passwd, conn, mycursor):
         else:
             print("User does not exist!")
 
+def createAccount(username, passwd, conn, mycursor):
+    try:
+        hashed = bcrypt.hashpw(passwd, bcrypt.gensalt())
+        secretKey = pyotp.random_base32()
+
+        uri = pyotp.totp.TOTP(secretKey).provisioning_uri(name=username, issuer_name="securImage")
+        qrcode.make(uri).save("totp.png")
+
+        mycursor.execute("INSERT INTO Users(username, passwdHash, secretKey) values (%s, %s, %s)", (username, hashed, secretKey))
+        conn.commit()
+        return True
+    except Exception as e:
+        return False
 
 def deleteAccount(username, passwd, conn, mycursor):
-    mycursor.execute("SELECT username, passwdHash FROM Users WHERE username = %s", (username,))
+    try:
+        mycursor.execute("SELECT username, passwdHash FROM Users WHERE username = %s", (username,))
+        row = mycursor.fetchone()
 
-    row = mycursor.fetchone()
-    if row is None:
-        print("User does not exist!")
-    else:
-        user = row[0]
-        hashedPasswd = row[1]
-        if user == username:
-            if bcrypt.checkpw(passwd, hashedPasswd.encode('utf-8')):
-                mycursor.execute("DELETE FROM Users WHERE username = %s", (username,))
-                conn.commit()
-                print(f"Succefully removed {username}'s account!")
-            else:
-                print("Incorrect username or password")
+        if row is None:
+            return False, "User does not exist!"
         else:
-            print("User does not exist!")
+            user = row[0]
+            hashedPasswd = row[1]
+            if user == username:
+                if bcrypt.checkpw(passwd, hashedPasswd.encode('utf-8')):
+                    mycursor.execute("DELETE FROM Users WHERE username = %s", (username,))
+                    conn.commit()
+                    return True, f"Succefully removed {username}'s account!"
+                else:
+                    return False, "Incorrect username or password"
+            else:
+                return False, "User does not exist!"
+    except Exception as e:
+        return False, f"Error deleting account: {e}"
