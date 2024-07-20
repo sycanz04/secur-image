@@ -1,60 +1,50 @@
 import rsa
 import os
 from utils.hide import hidden
+import tkinter.simpledialog
 
 
-# Define paths
-baseDir = os.path.expanduser(os.getenv('BASE_DIR', '~/hello'))
-pubDir = os.path.join(baseDir, "keys/pub")
-privDir = os.path.join(baseDir, "keys/priv")
-encpassDir = os.path.join(baseDir, "gamePrice")
-signDir = os.path.join(baseDir, "sign")
-
-
-def enc(passw, platform, conn, mycursor, username):
-    pubPath = os.path.join(pubDir, f"pub{platform}.pem")
-    privPath = os.path.join(privDir, f"priv{platform}.pem")
-    encpassPath = os.path.join(encpassDir, f"{platform}.txt")
-    signPath = os.path.join(signDir, f"{platform}Signature.txt")
-
-    # Generate pub and priv keys
-    (pubKey, privKey) = rsa.newkeys(1024)
-
-    # Write pub and priv keys
-    if os.path.exists(pubPath):
-        with open(pubPath, 'wb') as file:
-            file.write(pubKey.save_pkcs1("PEM"))
-    else:
-        with open(pubPath, 'wb') as file:
-            file.write(pubKey.save_pkcs1("PEM"))
-
-    if os.path.exists(privPath):
-        with open(privPath, 'wb') as file:
-            file.write(privKey.save_pkcs1("PEM"))
-    else:
-        with open(privPath, 'wb') as file:
-            file.write(privKey.save_pkcs1("PEM"))
+def enc(platform, passwd, imgFile, conn, mycursor, username):
+    # Generate 2048 bit pub and priv keys
+    (pubKey, privKey) = rsa.newkeys(2048)
 
     # Encrypting messages with pub key
-    encryptedMessage = rsa.encrypt(passw.encode(), pubKey)
+    encryptedMessage = rsa.encrypt(passwd.encode(), pubKey)
 
-    # Store passw in file
-    if os.path.exists(encpassPath):
-        with open(encpassPath, 'wb') as file:
-            file.write(encryptedMessage)
-    else:
-        with open(encpassPath, 'wb') as file:
-            file.write(encryptedMessage)
+    # Initialise encPassFile to store it temporarily
+    encPassFile = f"{platform}.txt"
+    with open(encPassFile, 'wb') as file:
+        file.write(encryptedMessage)
 
     # Generating signature
-    if os.path.exists(signPath):
-        signature = rsa.sign(encryptedMessage, privKey, "SHA-256")
-        with open(signPath, 'wb') as file:
-            file.write(signature)
-    else:
-        signature = rsa.sign(encryptedMessage, privKey, "SHA-256")
-        with open(signPath, 'wb') as file:
-            file.write(signature)
+    signature = rsa.sign(encryptedMessage, privKey, "SHA-256")
 
-    cfName = input("Cover file format: ")
-    hidden(platform, cfName, conn, mycursor, username)
+    try:
+        # Query userId
+        mycursor.execute("SELECT userId FROM Users WHERE username = %s", (username,))
+        rows = mycursor.fetchone()
+
+        if rows is None:
+            return False, "User not found!"
+        else:
+            userId = rows[0]
+
+        # Insert values into database
+        sql = "INSERT INTO `keys` (platform, pubKey, privKey, signature, userId) VALUES (%s, %s, %s, %s, %s)"
+        values = (platform, pubKey.save_pkcs1(), privKey.save_pkcs1(), signature, userId)
+
+        mycursor.execute(sql, values)
+        conn.commit()
+
+        # Prompt users for passphrase
+        passphrase = tkinter.simpledialog.askstring(title="Passphrase", prompt="Enter passphrase:", show='*')
+
+        success, message = hidden(platform, imgFile, encPassFile, conn, mycursor, username, passphrase)
+        if not success:
+            return False, message
+
+        return True, "Insertion successful"
+
+    except Exception as err:
+        conn.rollback()
+        return False, f"Error: {err}"

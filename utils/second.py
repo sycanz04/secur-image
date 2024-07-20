@@ -4,11 +4,12 @@ from utils.ls import listImage
 from utils.gen import genPass
 from utils.hide import extract
 from utils.delete import deleteImage
+from utils.secondMenu import insert, list
 from tkinter import *
 import tkinter as tk
 
 
-def menu(window, frame2, username):
+def menu(window, frame2, conn, mycursor, username):
     frame2.pack_forget()
     frame5 = Frame(window)
     frame5.pack()
@@ -18,7 +19,8 @@ def menu(window, frame2, username):
     menuT.pack()
 
     button1 = tk.Button(frame5, 
-                        text="Insert", command=lambda: login(window, frame5),
+                        text="Insert",
+                        command=lambda: insert(window, frame5, conn, mycursor, username),
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",
                         disabledforeground="gray", fg="black", font=("Arial", 12),
@@ -54,7 +56,8 @@ def menu(window, frame2, username):
                         padx=10, pady=5, width=15, wraplength=100)
     button4.pack()
     button5 = tk.Button(frame5, 
-                        text="List Image", command=lambda: login(window, frame5),
+                        text="List Image",
+                        command=lambda: list(window, frame5, conn, mycursor, username),
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",
                         disabledforeground="gray", fg="black", font=("Arial", 12),
