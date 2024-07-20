@@ -17,7 +17,7 @@ def prompt(frames):
     return platformTb
 
 # Prompts user for passwd
-def passw(frames):
+def getPasswd(frames):
     passwdT = tk.Label(frames, text="Password")
     passwdT.grid(row=1, column=0)
 
@@ -43,14 +43,14 @@ def chooseFile(fileLabel):
 
 ################## Main Functions ##################
 
-def insert(window, frame5, conn, mycursor, username): 
+def insert(window, frame5, conn, mycursor, username):
     frame5.pack_forget()
     frame7 = Frame(window)
     frame7.pack()
 
     # Get platform name and passwd
-    platform = prompt(frame7).get()
-    passwd = passw(frame7).get()
+    platform = prompt(frame7)
+    passwd = getPasswd(frame7)
 
     # Labels to display selected paths
     fileLabel = tk.Label(frame7, text="No file selected")
@@ -62,10 +62,15 @@ def insert(window, frame5, conn, mycursor, username):
     fileButt.grid(row=2, column=1)
 
     def handleInsert():
+        userPlatform = platform.get()
+        userPasswd = passwd.get()
+        fileName = fileLabel.cget("text")
+
+        # Remove any existing error message
         for widget in frame7.grid_slaves(row=4):
             widget.destroy()
 
-        if not platform or not passwd or not fileButt:
+        if not userPlatform or not userPasswd or "No file selected" in fileName:
             errorT = tk.Label(frame7, text="*All fields are required!*", fg='#ff0000')
             errorT.grid(row=4, column=0, columnspan=2)
             return
@@ -78,9 +83,7 @@ def insert(window, frame5, conn, mycursor, username):
                              command=handleInsert)
     submitButton.grid(row=3, column=1)
 
-
-
-    #enc(passwd, platform, conn, mycursor, username):
+    #enc(userPasswd, userPlatform, conn, mycursor, username):
 
 
 def list(window, frame5, conn, mycursor, username):
@@ -92,7 +95,7 @@ def list(window, frame5, conn, mycursor, username):
     userT = tk.Label(frame6, text=username)
     userT.pack(padx=10, pady=10)
 
-    success, result = listImage(conn, mycursor, username)    
+    success, result = listImage(conn, mycursor, username)
     if success:
         for imgId, platform in result:
             imgList = tk.Label(frame6, text=f"Image ID: {imgId}, Platform: {platform}")
