@@ -4,6 +4,7 @@ import cred
 import mysql.connector
 import bcrypt
 import pyotp
+import os
 from mysql.connector import Error
 from tkinter import *
 from tkinter import messagebox
@@ -61,6 +62,15 @@ def returnMain(curFrame, mainFrame):
     curFrame.destroy()
     mainFrame.pack()
 
+def cleaner(popup):
+    popup.destroy()
+    otpImgPath = 'totp.png'
+
+    if os.path.exists(otpImgPath):
+        os.remove(otpImgPath)
+    else:
+        return False
+
 def login(window, frame1):
     frame1.pack_forget()
     frame2 = Frame(window)
@@ -79,7 +89,7 @@ def login(window, frame1):
             errorT = tk.Label(frame2, text="*All fields are required!*", fg='#ff0000')
             errorT.grid(row=3, column=0, columnspan=2)
             return
-        
+
         if success:
             secretKey = message
 
@@ -113,8 +123,8 @@ def login(window, frame1):
             failT.grid(row=3, column=0, columnspan=2)
             usernameTb.delete(0, tk.END)
             passwdTb.delete(0, tk.END)
-        
-    submitButton = tk.Button(frame2, 
+
+    submitButton = tk.Button(frame2,
                         text="Login",
                         command=handleLogin)
     submitButton.grid(row=2, column=1)
@@ -135,7 +145,7 @@ def create(window, frame1):
     rePasswordT.grid(row=2, column=0)
     rePasswdTb = Entry(frame3, show='*')
     rePasswdTb.grid(row=2, column=1)
-        
+
     def handleCreate():
         username = usernameTb.get()
         passwd = passwdTb.get().encode('utf-8')
@@ -172,7 +182,7 @@ def create(window, frame1):
                 imgLabel.pack()
 
                 #Display done button
-                doneButt = Button(popup, text="Done", command=popup.destroy)
+                doneButt = Button(popup, text="Done", command=lambda: cleaner(popup))
                 doneButt.pack()
             else:
                 failT = tk.Label(frame3, text=f"*Account {username} not created!*", fg='#ff0000')
@@ -183,7 +193,7 @@ def create(window, frame1):
             passwdTb.delete(0, tk.END)
             rePasswdTb.delete(0, tk.END)
 
-    submitButton = tk.Button(frame3, 
+    submitButton = tk.Button(frame3,
                              text="Sign Up",
                              command=handleCreate)
     submitButton.grid(row=3, column=1)
@@ -192,7 +202,6 @@ def create(window, frame1):
                              text="Cancel",
                              command=lambda: returnMain(frame3, frame1))
     returnButton.grid(row=3, column=0)
-    
 
 def delete(window, frame1):
     frame1.pack_forget()
@@ -217,7 +226,7 @@ def delete(window, frame1):
             if success:
                 successT = tk.Label(frame4, text=message)
                 successT.grid(row=4, column=0, columnspan=2)
-                
+
             else:
                 failT = tk.Label(frame4, text=message, fg='#ff0000')
                 failT.grid(row=4, column=0, columnspan=2)
@@ -225,8 +234,8 @@ def delete(window, frame1):
         else:
             cancelT = tk.Label(frame4, text="Account deletion cancelled.", fg='#0000ff')
             cancelT.grid(row=4, column=0, columnspan=2)
-        
-    submitButton = tk.Button(frame4, 
+
+    submitButton = tk.Button(frame4,
                              text="Delete",
                              command=handleDelete)
     submitButton.grid(row=3, column=1)
