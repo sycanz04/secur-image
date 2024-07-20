@@ -2,38 +2,37 @@ import os
 from utils.dec import dec
 
 
-baseDir = os.path.expanduser(os.getenv('BASE_DIR', '~/hello'))
-cf = os.path.expanduser('~/img')
-ef = os.path.join(baseDir, 'gamePrice')
+def hidden(platform, cfFile, efFile, conn, mycursor, username, passphrase):
+    if not os.path.exists(cfFile):
+        return False, f"*{cfFile} DNE!*"
 
+    if not os.path.exists(efFile):
+        return False, f"*{efFile} DNE!*"
 
-def hidden(platform, cFile, conn, mycursor, username):
-    cfPath = os.path.join(cf, cFile)
-    efPath = os.path.join(ef, f"{platform}.txt")
+    # Embed encrypted password file into the image file
+    embedCommand = f"steghide embed -cf {cfFile} -ef {efFile} -p {passphrase}"
+    result = os.system(embedCommand)
 
-    if os.path.exists(cfPath):
-        if os.path.exists(efPath):
-            embedCommand = f"steghide embed -cf {cfPath} -ef {efPath}"
-            os.system(embedCommand)
-            print(f"{platform}.txt successfully embedded in {cFile}...\n")
-            with open(cfPath, "rb") as file:
-                binData = file.read()
+    if result != 0:
+        return False, "Failed to embed the file with steghide"
 
-            mycursor.execute("SELECT userId FROM Users WHERE username = %s", (username, ))
-            row = mycursor.fetchone()
-            if row is None:
-                print("User does not exist!")
-            else:
-                userId = row[0]
-                mycursor.execute("INSERT INTO Images(platform, photo, userId) VALUES (%s, %s, %s)", (platform, binData, userId))
-            conn.commit()
-            print("Stored in database!")
+    # Read binary of image file
+    with open(cfFile, "rb") as file:
+        binData = file.read()
 
-        else:
-            print(f"{efPath} DNE!")
-    else:
-        print(f"{cfPath} DNE!")
+    # Insert it into the database
+    mycursor.execute("SELECT userId FROM Users WHERE username = %s", (username, ))
+    row = mycursor.fetchone()
 
+    if row is None:
+        return False, "*User does not exist!*"
+
+    userId = row[0]
+    mycursor.execute("INSERT INTO Images(platform, photo, userId) VALUES (%s, %s, %s)", (platform, binData, userId))
+    os.remove(efFile)
+
+    conn.commit()
+    return True, "Stored in database!"
 
 def extract(platform, conn, mycursor, username):
     mycursor.execute("Select userId from Users WHERE username = %s", (username,))

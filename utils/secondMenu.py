@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter import filedialog
 import tkinter as tk
 from utils.ls import listImage
+from utils.enc import enc
+import os
 
 
 ################## Basic Functions ##################
@@ -32,12 +34,10 @@ def returnMain(curFrame, mainFrame):
     mainFrame.pack()
 
 # Choose image file path
-def chooseFile(fileLabel):
-    filePath = filedialog.askopenfilename(title="Select an image")
+def chooseImgPath(fileLabel):
+    filePath = filedialog.askopenfilename(initialdir='/home', title='Select an image')
     if filePath:
-        fileLabel.config(text=f"Selected file: {filePath}")
-
-    return filePath
+        fileLabel.config(text=filePath)
 
 ############# End of Basic Functions ###############
 
@@ -45,35 +45,52 @@ def chooseFile(fileLabel):
 
 def insert(window, frame5, conn, mycursor, username):
     frame5.pack_forget()
-    frame7 = Frame(window)
+    frame7 = tk.Frame(window)
     frame7.pack()
 
     # Get platform name and passwd
     platform = prompt(frame7)
     passwd = getPasswd(frame7)
 
-    # Labels to display selected paths
-    fileLabel = tk.Label(frame7, text="No file selected")
-    fileLabel.grid(row=2, column=0)
+    # Labels to display selected file
+    imgFileLabel = tk.Label(frame7, text="No file selected")
+    imgFileLabel.grid(row=2, column=0)
 
     # Choose an image
-    fileButt = tk.Button(frame7, text="Choose File",
-                         command=lambda: chooseFile(fileLabel))
-    fileButt.grid(row=2, column=1)
+    imgFileButt = tk.Button(frame7, text="Choose Image file",
+                         command=lambda: chooseImgPath(imgFileLabel))
+    imgFileButt.grid(row=2, column=1)
 
     def handleInsert():
         userPlatform = platform.get()
         userPasswd = passwd.get()
-        fileName = fileLabel.cget("text")
+        imgFile = imgFileLabel.cget("text")
 
         # Remove any existing error message
         for widget in frame7.grid_slaves(row=4):
             widget.destroy()
 
-        if not userPlatform or not userPasswd or "No file selected" in fileName:
+        # Checks if all required fields are filled
+        if not userPlatform or not userPasswd or "No file selected" in imgFile:
             errorT = tk.Label(frame7, text="*All fields are required!*", fg='#ff0000')
             errorT.grid(row=4, column=0, columnspan=2)
             return
+
+        if os.path.exists(imgFile):
+            print(imgFile)
+            print("The image exists!")
+        else:
+            print("The images DNE")
+            return
+
+        success, message = enc(userPlatform, userPasswd, imgFile, conn, mycursor, username)
+
+        if success:
+            successT = tk.Label(frame7, text=message)
+            successT.grid(row=4, column=0, columnspan=2)
+        else:
+            failT = tk.Label(frame7, text=message, fg='#ff0000')
+            failT.grid(row=4, column=0, columnspan=2)
 
     cancelButton = tk.Button(frame7, text="Cancel",
                              command=lambda: returnMain(frame7, frame5))
@@ -82,9 +99,6 @@ def insert(window, frame5, conn, mycursor, username):
     submitButton = tk.Button(frame7, text="Done",
                              command=handleInsert)
     submitButton.grid(row=3, column=1)
-
-    #enc(userPasswd, userPlatform, conn, mycursor, username):
-
 
 def list(window, frame5, conn, mycursor, username):
     frame5.pack_forget()

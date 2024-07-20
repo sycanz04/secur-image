@@ -4,7 +4,7 @@ def listImage(conn, mycursor, username):
                       JOIN Users U ON I.userId = U.userId
                       WHERE U.username = %s""", (username, ));
 
-    row = mycursor.fetchall()
+    rows = mycursor.fetchall()
     if not rows:
         return False, "User does not have any images!"
     else:
