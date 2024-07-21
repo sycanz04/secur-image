@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
 import tkinter as tk
-from utils.ls import listImage
 from utils.enc import enc
 from utils.gen import genPass
 from utils.dec import dec
@@ -256,7 +255,24 @@ def list(window, frame5, conn, mycursor, username):
     userT = tk.Label(frame6, text=username)
     userT.pack(padx=10, pady=10)
 
-    success, result = listImage(conn, mycursor, username)
+    def handlelistImage():
+        mycursor.execute("""SELECT i.photoId, i.platform
+                            FROM Images i
+                            JOIN Users u ON i.userId = u.userId
+                            WHERE u.username = %s""", (username, ))
+        rows = mycursor.fetchall()
+        if not rows:
+            return False, "No password stored!"
+        else:
+            img = []
+            for results in rows:
+                photoId = results[0]
+                platform = results[1]
+                img.append((photoId, platform))
+
+            return True, img
+
+    success, result = handlelistImage()
     if success:
         for imgId, platform in result:
             imgList = tk.Label(frame6, text=f"Image ID: {imgId}, Platform: {platform}")
@@ -266,7 +282,7 @@ def list(window, frame5, conn, mycursor, username):
         errorLabel.pack()
 
     returnButton = tk.Button(frame6,
-                             text='Return',
+                             text='Thanks!',
                              command=lambda: returnMain(frame6, frame5))
     returnButton.pack()
 
