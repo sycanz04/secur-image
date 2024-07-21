@@ -3,9 +3,6 @@ from utils.dec import dec
 
 
 def hidden(platform, cfFile, efFile, conn, mycursor, username, passphrase):
-    if not os.path.exists(cfFile):
-        return False, f"*{cfFile} DNE!*"
-
     if not os.path.exists(efFile):
         return False, f"*{efFile} DNE!*"
 
