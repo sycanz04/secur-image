@@ -51,10 +51,10 @@ def enc(platform, passwd, imgFile, usbDir, conn, mycursor, username):
         passphrase = tkinter.simpledialog.askstring(title="Passphrase", prompt="Enter passphrase:", show='*')
 
         success, message = hidden(platform, imgFile, encPassFile, conn, mycursor, username, passphrase)
-        if not success:
+        if success:
+            return True, message
+        else:
             return False, message
-
-        return True, "Insertion successful"
 
     except Exception as err:
         conn.rollback()

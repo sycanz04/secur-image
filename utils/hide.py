@@ -29,7 +29,7 @@ def hidden(platform, cfFile, efFile, conn, mycursor, username, passphrase):
     os.remove(efFile)
 
     conn.commit()
-    return True, "Stored in database!"
+    return True, "Operation successful!"
 
 def extract(platform, conn, mycursor, username):
     mycursor.execute("Select userId from Users WHERE username = %s", (username,))

@@ -3,6 +3,7 @@ from tkinter import filedialog
 import tkinter as tk
 from utils.ls import listImage
 from utils.enc import enc
+from utils.gen import genPass
 import os
 
 
@@ -120,6 +121,77 @@ def insert(window, frame5, conn, mycursor, username):
     submitButton = tk.Button(frame7, text="Done",
                              command=handleInsert)
     submitButton.grid(row=4, column=1)
+
+def generate(window, frame5, conn, mycursor, username):
+    # Things
+    frame5.pack_forget()
+    frame8 = tk.Frame(window)
+    frame8.pack()
+
+    # Get platform name
+    platform = prompt(frame8)
+
+    # Labels to display selected file
+    imgFileLabel = tk.Label(frame8, text="No file selected")
+    imgFileLabel.grid(row=1, column=0)
+
+    # Choose an image
+    imgFileButt = tk.Button(frame8, text="Choose Image file",
+                         command=lambda: chooseImgPath(imgFileLabel))
+    imgFileButt.grid(row=1, column=1)
+
+    # Labels to display selected dir
+    usbDirLabel = tk.Label(frame8, text="No dir selected")
+    usbDirLabel.grid(row=2, column=0)
+
+    # Choose a path
+    usbDirButt = tk.Button(frame8, text="Choose USB dir",
+                         command=lambda: chooseUsbDir(usbDirLabel))
+    usbDirButt.grid(row=2, column=1)
+
+    def handleGen():
+        userPlatform = platform.get()
+        imgFile = imgFileLabel.cget("text")
+        usbDir = usbDirLabel.cget("text")
+
+        # Remove any existing error message
+        for widget in frame8.grid_slaves(row=4):
+            widget.destroy()
+
+        # Checks if all required fields are filled
+        if not userPlatform or "No file selected" in imgFile:
+            errorT = tk.Label(frame8, text="*All fields are required!*", fg='#ff0000')
+            errorT.grid(row=4, column=0, columnspan=2)
+            return
+
+        # Checks if img file and Usb dir exist
+        if not os.path.exists(imgFile):
+            failT = tk.Label(frame8, text="The image DNE!", fg='#ff0000')
+            failT.grid(row=4, column=0, columnspan=2)
+            return
+
+        if not os.path.exists(usbDir):
+            failT = tk.Label(frame8, text="The USB dir DNE!", fg='#ff0000')
+            failT.grid(row=4, column=0, columnspan=2)
+            return
+
+        # If condition met, start encryption and embedding file
+        success, message = genPass(userPlatform, imgFile, usbDir, conn, mycursor, username)
+
+        if success:
+            successT = tk.Label(frame8, text=message)
+            successT.grid(row=4, column=0, columnspan=2)
+        else:
+            failT = tk.Label(frame8, text=message, fg='#ff0000')
+            failT.grid(row=4, column=0, columnspan=2)
+
+    cancelButton = tk.Button(frame8, text="Cancel",
+                             command=lambda: returnMain(frame8, frame5))
+    cancelButton.grid(row=3, column=0)
+
+    submitButton = tk.Button(frame8, text="Done",
+                             command=handleGen)
+    submitButton.grid(row=3, column=1)
 
 def list(window, frame5, conn, mycursor, username):
     frame5.pack_forget()

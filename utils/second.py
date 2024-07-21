@@ -4,7 +4,7 @@ from utils.ls import listImage
 from utils.gen import genPass
 from utils.hide import extract
 from utils.delete import deleteImage
-from utils.secondMenu import insert, list
+from utils.secondMenu import insert, generate, list
 from tkinter import *
 import tkinter as tk
 
@@ -18,7 +18,7 @@ def menu(window, frame2, conn, mycursor, username):
     menuT = tk.Label(frame5, text="Select an option")
     menuT.pack()
 
-    button1 = tk.Button(frame5, 
+    button1 = tk.Button(frame5,
                         text="Insert",
                         command=lambda: insert(window, frame5, conn, mycursor, username),
                         activebackground="blue", activeforeground="white",
@@ -28,8 +28,9 @@ def menu(window, frame2, conn, mycursor, username):
                         highlightthickness=2, justify="center", overrelief="raised",
                         padx=10, pady=5, width=15, wraplength=100)
     button1.pack()
-    button2 = tk.Button(frame5, 
-                        text="Generate", command=lambda: login(window, frame5),
+    button2 = tk.Button(frame5,
+                        text="Generate",
+                        command=lambda: generate(window, frame5, conn, mycursor, username),
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",
                         disabledforeground="gray", fg="black", font=("Arial", 12),
@@ -37,7 +38,7 @@ def menu(window, frame2, conn, mycursor, username):
                         highlightthickness=2, justify="center", overrelief="raised",
                         padx=10, pady=5, width=15, wraplength=100)
     button2.pack()
-    button3 = tk.Button(frame5, 
+    button3 = tk.Button(frame5,
                         text="Decrypt", command=lambda: login(window, frame5),
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",
@@ -46,7 +47,7 @@ def menu(window, frame2, conn, mycursor, username):
                         highlightthickness=2, justify="center", overrelief="raised",
                         padx=10, pady=5, width=15, wraplength=100)
     button3.pack()
-    button4 = tk.Button(frame5, 
+    button4 = tk.Button(frame5,
                         text="Verify", command=lambda: login(window, frame5),
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",
@@ -55,7 +56,7 @@ def menu(window, frame2, conn, mycursor, username):
                         highlightthickness=2, justify="center", overrelief="raised",
                         padx=10, pady=5, width=15, wraplength=100)
     button4.pack()
-    button5 = tk.Button(frame5, 
+    button5 = tk.Button(frame5,
                         text="List Image",
                         command=lambda: list(window, frame5, conn, mycursor, username),
                         activebackground="blue", activeforeground="white",
@@ -65,7 +66,7 @@ def menu(window, frame2, conn, mycursor, username):
                         highlightthickness=2, justify="center", overrelief="raised",
                         padx=10, pady=5, width=15, wraplength=100)
     button5.pack()
-    button6 = tk.Button(frame5, 
+    button6 = tk.Button(frame5,
                         text="Delete Image", command=lambda: login(window, frame5),
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",
@@ -74,7 +75,7 @@ def menu(window, frame2, conn, mycursor, username):
                         highlightthickness=2, justify="center", overrelief="raised",
                         padx=10, pady=5, width=15, wraplength=100)
     button6.pack()
-    button7 = tk.Button(frame5, 
+    button7 = tk.Button(frame5,
                         text="Quit", command=window.destroy,
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",

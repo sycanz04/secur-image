@@ -3,8 +3,8 @@ import random
 from utils.enc import enc
 
 
-# Generates passwords
-def genPass(platform, conn, mycursor, userId):
+# Generates a 16 characters password
+def genPass(platform, imgFile, usbDir, conn, mycursor, userId):
     asciiLower = string.ascii_lowercase
     asciiUpper = string.ascii_uppercase
     asciiNumbers = string.digits
@@ -21,4 +21,8 @@ def genPass(platform, conn, mycursor, userId):
     random.shuffle(listPass)
     finalPass = ''.join(listPass)
 
-    enc(finalPass, platform, conn, mycursor, userId)
+    success, message = enc(platform, finalPass, imgFile, usbDir, conn, mycursor, userId)
+    if success:
+        return True, message
+    else:
+        return False, message
