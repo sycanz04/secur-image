@@ -49,15 +49,6 @@ def menu(window, frame2, conn, mycursor, username):
                         padx=10, pady=5, width=15, wraplength=100)
     button3.pack()
     button4 = tk.Button(frame5,
-                        text="Verify", command=lambda: login(window, frame5),
-                        activebackground="blue", activeforeground="white",
-                        anchor="center", bd=3, bg="lightgray", cursor="hand2",
-                        disabledforeground="gray", fg="black", font=("Arial", 12),
-                        height=2, highlightbackground="black", highlightcolor="green",
-                        highlightthickness=2, justify="center", overrelief="raised",
-                        padx=10, pady=5, width=15, wraplength=100)
-    button4.pack()
-    button5 = tk.Button(frame5,
                         text="List Image",
                         command=lambda: list(window, frame5, conn, mycursor, username),
                         activebackground="blue", activeforeground="white",
@@ -66,8 +57,8 @@ def menu(window, frame2, conn, mycursor, username):
                         height=2, highlightbackground="black", highlightcolor="green",
                         highlightthickness=2, justify="center", overrelief="raised",
                         padx=10, pady=5, width=15, wraplength=100)
-    button5.pack()
-    button6 = tk.Button(frame5,
+    button4.pack()
+    button5 = tk.Button(frame5,
                         text="Delete Image", command=lambda: login(window, frame5),
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",
@@ -75,8 +66,8 @@ def menu(window, frame2, conn, mycursor, username):
                         height=2, highlightbackground="black", highlightcolor="green",
                         highlightthickness=2, justify="center", overrelief="raised",
                         padx=10, pady=5, width=15, wraplength=100)
-    button6.pack()
-    button7 = tk.Button(frame5,
+    button5.pack()
+    button6 = tk.Button(frame5,
                         text="Quit", command=window.destroy,
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",
@@ -84,7 +75,7 @@ def menu(window, frame2, conn, mycursor, username):
                         height=2, highlightbackground="black", highlightcolor="green",
                         highlightthickness=2, justify="center", overrelief="raised",
                         padx=10, pady=5, width=15, wraplength=100)
-    button7.pack()
+    button6.pack()
 
 # def menu(conn, mycursor, username):
 #     print("""

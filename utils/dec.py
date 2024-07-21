@@ -15,20 +15,22 @@ def dec(platform, usbDir, conn, mycursor, username):
     else:
         userId = userIdRows[0]
 
-    # Query keys table to retrieve first half of priv key
-    mycursor.execute("SELECT privKey FROM `keys` WHERE platform = %s AND userId = %s", (platform, userId))
+    # Query keys table to retrieve first half of priv key, pub key, signature
+    mycursor.execute("SELECT privKey, pubKey, signature FROM `keys` WHERE platform = %s AND userId = %s", (platform, userId))
     keyRows = mycursor.fetchone()
     if keyRows is None:
         return False, "Keys not found!"
     else:
         privKey1 = keyRows[0]
+        pubKey = keyRows[1]
+        signature = keyRows[2]
 
     # Construct path and read 2nd half of the private key
     usbFileName = os.path.join(usbDir, f"priv{platform}2.PEM")
     with open(usbFileName, 'rb') as file:
         privKey2 = file.read()
 
-    # Combine them and store it in a temp file
+    # Combine them, load both private and public key object
     combinedPrivKey = privKey1 + privKey2
     privKey = rsa.PrivateKey.load_pkcs1(combinedPrivKey)
 
@@ -49,7 +51,7 @@ def dec(platform, usbDir, conn, mycursor, username):
     # Prompt users for passphrase
     passphrase = tkinter.simpledialog.askstring(title="Passphrase", prompt="Enter passphrase:", show='*')
 
-    success, message = extract(platform, passphrase, privKey, tempImgFile)
+    success, message = extract(platform, passphrase, privKey, tempImgFile, signature, pubKey)
 
     if success:
         return True, message

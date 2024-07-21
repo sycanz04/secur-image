@@ -20,6 +20,7 @@ def genPass(platform, imgFile, usbDir, conn, mycursor, userId):
     listPass = list(combinedPass)
     random.shuffle(listPass)
     finalPass = ''.join(listPass)
+    print(f"finalPass: {finalPass}")
 
     success, message = enc(platform, finalPass, imgFile, usbDir, conn, mycursor, userId)
     if success:

@@ -31,7 +31,7 @@ def hidden(platform, cfFile, efFile, conn, mycursor, username, passphrase):
     conn.commit()
     return True, "Operation successful!"
 
-def extract(platform, passphrase, privKey, tempImgFile):
+def extract(platform, passphrase, privKey, tempImgFile, signature, pubKey):
     # Extract file containing encPasswd
     embedCommand = f"steghide extract -sf {tempImgFile} -p {passphrase}"
     os.system(embedCommand)
@@ -44,12 +44,19 @@ def extract(platform, passphrase, privKey, tempImgFile):
 
         # Decrypt encPasswd into plaintext
         decPasswdByte = rsa.decrypt(encPasswd, privKey)
-        decPasswd = f"Decrypted password: {decPasswdByte.decode()}"
-
+        decPasswd = decPasswdByte.decode()
 
         # Remove temp files
         os.remove(tempImgFile)
         os.remove(extractedFilePath)
+
+        loadedPubKey = rsa.PublicKey.load_pkcs1(pubKey)
+        try:
+            verified = rsa.verify(encPasswd, signature, loadedPubKey)
+            verification = f"Verification: {str(verified)}. Password is {decPasswd}"
+            return True, verification
+        except rsa.VerificationError:
+            return False, "Verification failed, file has been tampered with!"
 
         return True, decPasswd
     else:
