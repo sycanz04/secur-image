@@ -133,14 +133,10 @@ def login(window, frame1):
             usernameTb.delete(0, tk.END)
             passwdTb.delete(0, tk.END)
 
-    submitButton = tk.Button(frame2,
-                        text="Login",
-                        command=handleLogin)
+    submitButton = tk.Button(frame2, text="Login", command=handleLogin)
     submitButton.grid(row=2, column=1)
 
-    returnButton = tk.Button(frame2,
-                             text="Cancel",
-                             command=lambda: returnMain(frame2, frame1))
+    returnButton = tk.Button(frame2, text="Cancel", command=lambda: returnMain(frame2, frame1))
     returnButton.grid(row=2, column=0)
 
 def create(window, frame1):
@@ -202,14 +198,10 @@ def create(window, frame1):
             passwdTb.delete(0, tk.END)
             rePasswdTb.delete(0, tk.END)
 
-    submitButton = tk.Button(frame3,
-                             text="Sign Up",
-                             command=handleCreate)
+    submitButton = tk.Button(frame3, text="Sign Up", command=handleCreate)
     submitButton.grid(row=3, column=1)
 
-    returnButton = tk.Button(frame3,
-                             text="Cancel",
-                             command=lambda: returnMain(frame3, frame1))
+    returnButton = tk.Button(frame3, text="Cancel", command=lambda: returnMain(frame3, frame1))
     returnButton.grid(row=3, column=0)
 
 def delete(window, frame1):
