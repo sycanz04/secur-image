@@ -4,6 +4,7 @@ import tkinter as tk
 from utils.ls import listImage
 from utils.enc import enc
 from utils.gen import genPass
+from utils.dec import dec
 import os
 
 
@@ -193,9 +194,62 @@ def generate(window, frame5, conn, mycursor, username):
                              command=handleGen)
     submitButton.grid(row=3, column=1)
 
+def decrypt(window, frame5, conn, mycursor, username):
+    frame5.pack_forget()
+    frame9 = tk.Frame(window)
+    frame9.pack()
+
+    # Get platform name
+    platform = prompt(frame9)
+
+    # Labels to display selected dir
+    usbDirLabel = tk.Label(frame9, text="No dir selected")
+    usbDirLabel.grid(row=1, column=0)
+
+    # Choose priv key path in USB
+    usbDirButt = tk.Button(frame9, text="Choose USB dir",
+                         command=lambda: chooseUsbDir(usbDirLabel))
+    usbDirButt.grid(row=1, column=1)
+
+    def handleDec():
+        userPlatform = platform.get()
+        usbDir = usbDirLabel.cget("text")
+
+        # Remove any existing error message
+        for widget in frame9.grid_slaves(row=3):
+            widget.destroy()
+
+        # Checks if all required fields are filled
+        if not userPlatform or "No dir selected" in usbDir:
+            errorT = tk.Label(frame9, text="*All fields are required!*", fg='#ff0000')
+            errorT.grid(row=3, column=0, columnspan=2)
+            return
+
+        if not os.path.exists(usbDir):
+            failT = tk.Label(frame9, text="The USB dir DNE!", fg='#ff0000')
+            failT.grid(row=3, column=0, columnspan=2)
+            return
+
+        success, message = dec(userPlatform, usbDir, conn, mycursor, username)
+
+        if success:
+            successT = tk.Label(frame9, text=message)
+            successT.grid(row=3, column=0, columnspan=2)
+        else:
+            failT = tk.Label(frame9, text=message, fg='#ff0000')
+            failT.grid(row=3, column=0, columnspan=2)
+
+    cancelButton = tk.Button(frame9, text="Cancel",
+                             command=lambda: returnMain(frame9, frame5))
+    cancelButton.grid(row=2, column=0)
+
+    submitButton = tk.Button(frame9, text="Done",
+                             command=handleDec)
+    submitButton.grid(row=2, column=1)
+
 def list(window, frame5, conn, mycursor, username):
     frame5.pack_forget()
-    frame6 = Frame(window)
+    frame6 = tk.Frame(window)
     frame6.pack()
 
     # Display username

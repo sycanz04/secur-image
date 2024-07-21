@@ -1,34 +1,57 @@
 import rsa
 import os
 from utils.ver import ver
+from utils.hide import extract
+import tkinter.simpledialog
 
 
-baseDir = os.path.expanduser(os.getenv('BASE_DIR', '~/hello'))
-privDir = os.path.join(baseDir, 'keys/priv')
-encpassDir = os.path.join(baseDir, 'gamePrice')
+def dec(platform, usbDir, conn, mycursor, username):
+    # Query userId
+    mycursor.execute("SELECT userId FROM Users WHERE username = %s", (username,))
+    userIdRows = mycursor.fetchone()
 
+    if userIdRows is None:
+        return False, "User not found!"
+    else:
+        userId = userIdRows[0]
 
-def dec(platform):
-    try:
-        privPath = os.path.join(privDir, f"priv{platform}.pem")
-        encpassPath = os.path.join(encpassDir, f"{platform}.txt")
+    # Query keys table to retrieve first half of priv key
+    mycursor.execute("SELECT privKey FROM `keys` WHERE platform = %s AND userId = %s", (platform, userId))
+    keyRows = mycursor.fetchone()
+    if keyRows is None:
+        return False, "Keys not found!"
+    else:
+        privKey1 = keyRows[0]
 
-        # Retrieve priv key
-        with open(privPath, "rb") as files:
-            privKey = rsa.PrivateKey.load_pkcs1(files.read())
+    # Construct path and read 2nd half of the private key
+    usbFileName = os.path.join(usbDir, f"priv{platform}2.PEM")
+    with open(usbFileName, 'rb') as file:
+        privKey2 = file.read()
 
-        # Retrieve enc key
-        with open(encpassPath, "rb") as files:
-            encPass = files.read()
+    # Combine them and store it in a temp file
+    combinedPrivKey = privKey1 + privKey2
+    privKey = rsa.PrivateKey.load_pkcs1(combinedPrivKey)
 
-        # Decode message
-        clearMessage = rsa.decrypt(encPass, privKey)
+    # Retrieve img BLOB from DB
+    mycursor.execute("SELECT photo FROM Images WHERE userId = %s AND platform = %s", (userId, platform))
+    imgRows = mycursor.fetchone()
 
-        try:
-            ver(platform)
-            print("Clear message: " + clearMessage.decode())
-        except Exception:
-            print("Verification for signature failed!")
+    if imgRows is None:
+        return False, "Image not found!"
+    else:
+        img = imgRows[0]
 
-    except Exception as e:
-        print(f"An error occured: {e}")
+    # Write img BLOB to a file
+    tempImgFile = "tempImg.jpg"
+    with open(tempImgFile, 'wb') as file:
+        file.write(img)
+
+    # Prompt users for passphrase
+    passphrase = tkinter.simpledialog.askstring(title="Passphrase", prompt="Enter passphrase:", show='*')
+
+    success, message = extract(platform, passphrase, privKey, tempImgFile)
+
+    if success:
+        return True, message
+    else:
+        return False, message

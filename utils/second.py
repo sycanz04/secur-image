@@ -4,7 +4,7 @@ from utils.ls import listImage
 from utils.gen import genPass
 from utils.hide import extract
 from utils.delete import deleteImage
-from utils.secondMenu import insert, generate, list
+from utils.secondMenu import insert, generate, decrypt, list
 from tkinter import *
 import tkinter as tk
 
@@ -39,7 +39,8 @@ def menu(window, frame2, conn, mycursor, username):
                         padx=10, pady=5, width=15, wraplength=100)
     button2.pack()
     button3 = tk.Button(frame5,
-                        text="Decrypt", command=lambda: login(window, frame5),
+                        text="Decrypt",
+                        command=lambda: decrypt(window, frame5, conn, mycursor, username),
                         activebackground="blue", activeforeground="white",
                         anchor="center", bd=3, bg="lightgray", cursor="hand2",
                         disabledforeground="gray", fg="black", font=("Arial", 12),
