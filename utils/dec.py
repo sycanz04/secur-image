@@ -26,7 +26,7 @@ def dec(platform, usbDir, conn, mycursor, username):
         signature = keyRows[2]
 
     # Construct path and read 2nd half of the private key
-    usbFileName = os.path.join(usbDir, f"priv{platform}2.PEM")
+    usbFileName = os.path.join(usbDir, f"{username}Priv{platform}2.PEM")
     with open(usbFileName, 'rb') as file:
         privKey2 = file.read()
 

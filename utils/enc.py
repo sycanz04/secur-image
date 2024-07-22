@@ -21,7 +21,7 @@ def enc(platform, passwd, imgFile, usbDir, conn, mycursor, username):
     signature = rsa.sign(encryptedMessage, privKey, "SHA-256")
 
     # Generate path and split private key
-    usbFilePath = os.path.join(usbDir, f"priv{platform}2.PEM")
+    usbFilePath = os.path.join(usbDir, f"{username}Priv{platform}2.PEM")
     fullPrivKey = privKey.save_pkcs1()
     halfLenPrivKey = len(fullPrivKey) // 2
     privKey1 = fullPrivKey[:halfLenPrivKey]

@@ -1,3 +1,5 @@
+import pyotp
+import bcrypt
 from tkinter import *
 from tkinter import filedialog
 import tkinter as tk
@@ -285,5 +287,73 @@ def list(window, frame5, conn, mycursor, username):
                              text='Thanks!',
                              command=lambda: returnMain(frame6, frame5))
     returnButton.pack()
+
+def delete(window, frame5, conn, mycursor, username):
+    # Asks for platform and passwords, then finalise with OTP
+    frame5.pack_forget()
+    frame10 = tk.Frame(window)
+    frame10.pack()
+
+    # Get platform name and OTP
+    platformEntry = prompt(frame10)
+
+    def handleDel():
+        platform = platformEntry.get()
+
+        # Clear previous status message
+        for widget in frame10.grid_slaves(row=4):
+            widget.destroy()
+
+        mycursor.execute("SELECT secretKey FROM Users WHERE username = %s", (username, ))
+        row = mycursor.fetchone()
+        if row:
+            secretKey = row[0]
+        else:
+            tk.Label(frame10, text="*User not found!*", fg='#ff0000').grid(row=4, columnspan=2)
+            frame10.destroy()
+            return
+
+        # OTP window
+        otpFrame = tk.Toplevel(frame10)
+        otpFrame.title("Verify OTP")
+
+        # OTP Prompt
+        otpT = tk.Label(otpFrame, text="Enter the OTP on Google Authenticator to verify you're the owner")
+        otpT.pack()
+        otpTb = tk.Entry(otpFrame, show='*')
+        otpTb.pack()
+
+        def verifyOTP():
+            otp = otpTb.get()
+            totp = pyotp.TOTP(secretKey)
+            if totp.verify(otp):
+                mycursor.execute("""DELETE FROM Images
+                                    WHERE userId = (SELECT userId FROM Users WHERE Username = %s)
+                                    AND platform = %s""",
+                                    (username, platform))
+                mycursor.execute("""DELETE FROM `keys`
+                                    WHERE userId = (SELECT userId FROM Users WHERE Username = %s)
+                                    AND platform = %s""",
+                                    (username, platform))
+                conn.commit()
+                otpFrame.destroy()
+                successT = tk.Label(frame10, text=f"Image {platform} deleted!")
+                successT.grid(row=4, columnspan=2)
+            else:
+                failT = tk.Label(frame10, text="*Invalid OTP. Please try again.*", fg='#ff0000')
+                failT.grid(row=4, columnspan=2)
+                otpTb.delete(0, tk.END)
+
+        # OTP submit button
+        otpButt = Button(otpFrame, text='Submit', command=verifyOTP)
+        otpButt.pack()
+
+    cancelButton = tk.Button(frame10, text="Cancel",
+                             command=lambda: returnMain(frame10, frame5))
+    cancelButton.grid(row=3, column=0)
+
+    submitButton = tk.Button(frame10, text="Done",
+                             command=handleDel)
+    submitButton.grid(row=3, column=1)
 
 ############### End of Main Functions ###############

@@ -14,8 +14,6 @@ def loginAccount(username, passwd, conn, mycursor):
         hashedPasswd = row[1]
         secretKey = row[2]
 
-        totp = pyotp.TOTP(secretKey)
-
         if user == username:
             if bcrypt.checkpw(passwd, hashedPasswd.encode('utf-8')):
                 # OTP will be validated in login function
