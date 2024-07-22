@@ -1,5 +1,5 @@
 import os
-from utils.dec import dec
+import rsa
 
 
 def hidden(platform, cfFile, efFile, conn, mycursor, username, passphrase):
@@ -31,39 +31,33 @@ def hidden(platform, cfFile, efFile, conn, mycursor, username, passphrase):
     conn.commit()
     return True, "Operation successful!"
 
-def extract(platform, conn, mycursor, username):
-    mycursor.execute("Select userId from Users WHERE username = %s", (username,))
-    userIdResult = mycursor.fetchone()
+def extract(platform, passphrase, privKey, tempImgFile, signature, pubKey):
+    # Extract file containing encPasswd
+    embedCommand = f"steghide extract -sf {tempImgFile} -p {passphrase}"
+    os.system(embedCommand)
 
-    if userIdResult:
-        userId = userIdResult[0]
-    else:
-        raise ValueError("User not found")
+    extractedFilePath = f"{platform}.txt"
+    if os.path.exists(extractedFilePath):
+        # Read encPasswd
+        with open(extractedFilePath, 'rb') as file:
+            encPasswd = file.read()
 
-    mycursor.execute("""SELECT Images.photo
-                     FROM Images
-                     INNER JOIN Users ON Images.userId = Users.userId
-                     WHERE Images.platform = %s AND Users.userId = %s""", (platform, userId))
-    imageResult = mycursor.fetchone()
-    if userIdResult:
-        image = imageResult[0]
-    else:
-        raise ValueError("Image not found")
-    conn.commit()
+        # Decrypt encPasswd into plaintext
+        decPasswdByte = rsa.decrypt(encPasswd, privKey)
+        decPasswd = decPasswdByte.decode()
 
-    storeFilePath = os.path.join(cf, f"{username}{platform}.jpg")
-    if os.path.exists(storeFilePath):
-        with open(storeFilePath, 'wb') as file:
-            file.write(image)
-            file.close()
-    else:
-        with open(storeFilePath, 'wb') as file:
-            file.write(image)
-            file.close()
+        # Remove temp files
+        os.remove(tempImgFile)
+        os.remove(extractedFilePath)
 
-    if os.path.exists(storeFilePath):
-        embedCommand = f"steghide extract -sf {storeFilePath}"
-        os.system(embedCommand)
-        dec(platform)
+        loadedPubKey = rsa.PublicKey.load_pkcs1(pubKey)
+        try:
+            verified = rsa.verify(encPasswd, signature, loadedPubKey)
+            verification = f"Verification: {str(verified)}. Password is {decPasswd}"
+            return True, verification
+        except rsa.VerificationError:
+            return False, "Verification failed, file has been tampered with!"
+
+        return True, decPasswd
     else:
-        print(f"{storeFilePath} DNE!")
+        return False, "Extraction failed"

@@ -7,6 +7,7 @@ import tkinter.simpledialog
 def enc(platform, passwd, imgFile, usbDir, conn, mycursor, username):
     # Generate 2048 bit pub and priv keys
     (pubKey, privKey) = rsa.newkeys(2048)
+    loadedPubKey = pubKey.save_pkcs1()
 
     # Encrypting messages with pub key
     encryptedMessage = rsa.encrypt(passwd.encode(), pubKey)
@@ -20,7 +21,7 @@ def enc(platform, passwd, imgFile, usbDir, conn, mycursor, username):
     signature = rsa.sign(encryptedMessage, privKey, "SHA-256")
 
     # Generate path and split private key
-    usbFilePath = os.path.join(usbDir, f"priv{platform}2.PEM")
+    usbFilePath = os.path.join(usbDir, f"{username}Priv{platform}2.PEM")
     fullPrivKey = privKey.save_pkcs1()
     halfLenPrivKey = len(fullPrivKey) // 2
     privKey1 = fullPrivKey[:halfLenPrivKey]
@@ -42,7 +43,7 @@ def enc(platform, passwd, imgFile, usbDir, conn, mycursor, username):
 
         # Insert values into database
         sql = "INSERT INTO `keys` (platform, pubKey, privKey, signature, userId) VALUES (%s, %s, %s, %s, %s)"
-        values = (platform, pubKey.save_pkcs1(), privKey1, signature, userId)
+        values = (platform, loadedPubKey, privKey1, signature, userId)
 
         mycursor.execute(sql, values)
         conn.commit()
