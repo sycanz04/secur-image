@@ -1,5 +1,6 @@
 # Secur-Image 🔒
-Secur-Image was originally my project for [Hackerspace's](https://hackerspacemmu.rocks/) hackathon that I continued to work on after. The shortest way you could possible explain this program is it's a password manager.
+Secur-Image was originally my project for [Hackerspace's](https://hackerspacemmu.rocks/) hackathon that I continued to work on after. The shortest way you could possible explain this program is it's a password manager. <br/><br/>
+***Note: This is still an ongoing project so updates are to be expected***
 
 ## How does it work? 🧐
 This program generate/insert(user input) a password, encrypts the password with RSA and stores half the private key in database and the other half on a flash drive. Then it signs the encrypted password with SHA-256 before embedding it into an image of user's choice with steganography technique (steghide). All while storing everything into a database.
