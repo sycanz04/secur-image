@@ -1,5 +1,11 @@
-# Secur-Image
-#### This is a script I made during a hackathon that I wish to progress further on. It encrypts a randomly generated password and signs it then finally embeds it into an image using steganography technique
-I will update this script as I learn more and continue to progress. Can't wait for what the future holds. Rn it's really wonky and prob not even usable for alot of people so yea...
+# Secur-Image 🔒
+Secur-Image was originally my project for [Hackerspace's](https://hackerspacemmu.rocks/) hackathon that I continued to work on after. The shortest way you could possible explain this program is it's a password manager.
 
-I'm planning to finish this project in a few days or a within a week, after that I'll update the README properly.
+## How does it work? 🧐
+This program generate/insert(user input) a password, encrypts the password with RSA and stores half the private key in database and the other half on a flash drive. Then it signs the encrypted password with SHA-256 before embedding it into an image of user's choice with steganography technique (steghide). All while storing everything into a database.
+
+## General program flow 🌊
+User logs into their account (create if don't have one), prompted for MFA (TOTP), choose to insert/generate/decrypt passwords or list/delete image.
+
+## Tech Stack ⚛️
+Python (a couple pip libraries), Tkinter, MySQL
