@@ -2,5 +2,4 @@ env
 __pycache__
 utils/__pycache__
 cred.py
-totp.png
 pyrightconfig.json
