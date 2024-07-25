@@ -51,11 +51,13 @@ mycursor.execute("""CREATE TABLE IF NOT EXISTS `keys`
                     userId INT NOT NULL,
                     FOREIGN KEY(userId) REFERENCES Users(userId));""")
 
+################ Basic functions ################
+
 def prompt(frames):
-    usernameT = tk.Label(frames, text="Username")
+    usernameT = tk.Label(frames, text="Username", font=('Arial', 15))
     usernameT.grid(row=0)
 
-    passwordT = tk.Label(frames, text="Password")
+    passwordT = tk.Label(frames, text="Password", font=('Arial', 15))
     passwordT.grid(row=1)
 
     usernameTb = Entry(frames)
@@ -78,6 +80,10 @@ def cleaner(popup):
         os.remove(otpImgPath)
     else:
         return False
+
+############# End Basic Functions ##############
+
+############### Main Function ###############
 
 def login(window, frame1):
     frame1.pack_forget()
@@ -245,3 +251,5 @@ def delete(window, frame1):
                              text="Cancel",
                              command=lambda: returnMain(frame4, frame1))
     returnButton.grid(row=3, column=0)
+
+############## End of main function ##############

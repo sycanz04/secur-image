@@ -13,7 +13,7 @@ import os
 
 # Prompts user for platform name
 def prompt(frames):
-    platformT = tk.Label(frames, text="Platform")
+    platformT = tk.Label(frames, text="Platform", font=('Arial', 20))
     platformT.grid(row=0, column=0)
 
     platformTb = Entry(frames)
@@ -23,7 +23,7 @@ def prompt(frames):
 
 # Prompts user for passwd
 def getPasswd(frames):
-    passwdT = tk.Label(frames, text="Password")
+    passwdT = tk.Label(frames, text="Password", font=('Arial', 20))
     passwdT.grid(row=1, column=0)
 
     passwdTb = Entry(frames, show='*')
