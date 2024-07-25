@@ -9,4 +9,22 @@ This program generate/insert(user input) a password, encrypts the password with 
 User logs into their account (create if don't have one), prompted for MFA (TOTP), choose to insert/generate/decrypt passwords or list/delete image.
 
 ## Tech Stack ⚛️
-Python (a couple pip libraries), Tkinter, MySQL
+Programming Language:
+* Python3
+
+Database:
+* Mysql
+
+Cryptography/Password/OTP libraries:
+* RSA
+* Bcrypt
+* PyOTP
+
+CLI Tool:
+* Steghide
+
+## PIP Modules 📚
+This project uses virtual environment and the required PIP modules are in the `requirements.txt` file. Setup a [venv](https://www.freecodecamp.org/news/how-to-setup-virtual-environments-in-python/) in your repo and do:
+```sh
+pip install -r requirements.txt
+```
