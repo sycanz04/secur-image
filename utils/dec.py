@@ -1,11 +1,10 @@
 import rsa
 import os
-from utils.ver import ver
 from utils.hide import extract
 import tkinter.simpledialog
 
 
-def dec(platform, usbDir, conn, mycursor, username):
+def dec(platform, usbDir, mycursor, username):
     # Query userId
     mycursor.execute("SELECT userId FROM Users WHERE username = %s", (username,))
     userIdRows = mycursor.fetchone()
@@ -51,9 +50,9 @@ def dec(platform, usbDir, conn, mycursor, username):
     # Prompt users for passphrase
     passphrase = tkinter.simpledialog.askstring(title="Passphrase", prompt="Enter passphrase:", show='*')
 
-    success, message = extract(platform, passphrase, privKey, tempImgFile, signature, pubKey)
+    success, message, decPasswd = extract(platform, passphrase, privKey, tempImgFile, signature, pubKey)
 
     if success:
-        return True, message
+        return True, message, decPasswd
     else:
         return False, message

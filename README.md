@@ -12,6 +12,9 @@ User logs into their account (create if don't have one), prompted for MFA (TOTP)
 Programming Language:
 * Python3
 
+GUI:
+* Tkinter
+
 Database:
 * Mysql
 

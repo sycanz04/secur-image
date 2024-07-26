@@ -53,11 +53,10 @@ def extract(platform, passphrase, privKey, tempImgFile, signature, pubKey):
         loadedPubKey = rsa.PublicKey.load_pkcs1(pubKey)
         try:
             verified = rsa.verify(encPasswd, signature, loadedPubKey)
-            verification = f"Verification: {str(verified)}. Password is {decPasswd}"
-            return True, verification
+            verification = f"Verification: {str(verified)}. Password is: {decPasswd}. Copy to clipboard?"
+            return True, verification, decPasswd
         except rsa.VerificationError:
             return False, "Verification failed, file has been tampered with!"
 
-        return True, decPasswd
     else:
         return False, "Extraction failed"
