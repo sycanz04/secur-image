@@ -23,6 +23,6 @@ def menu(window, frame2, conn, mycursor, username):
 
     butt1 = createButt(frame5, "Insert", lambda: insert(window, frame5, conn, mycursor, username)).pack()
     butt2 = createButt(frame5, "Generate", lambda: generate(window, frame5, conn, mycursor, username)).pack()
-    butt3 = createButt(frame5, "Decrypt", lambda: decrypt(window, frame5, conn, mycursor, username)).pack()
+    butt3 = createButt(frame5, "Decrypt", lambda: decrypt(window, frame5, mycursor, username)).pack()
     butt4 = createButt(frame5, "Delete", lambda: delete(window, frame5, conn, mycursor, username)).pack()
-    butt5 = createButt(frame5, "Insert", window.destroy).pack()
+    butt5 = createButt(frame5, "Quit", window.destroy).pack()

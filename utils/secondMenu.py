@@ -1,5 +1,6 @@
 import os
 import pyotp
+import clipboard
 from utils.enc import enc
 from utils.dec import dec
 from utils.gen import genPass
@@ -234,7 +235,7 @@ def list(curFrame, frame5, mycursor, username, buttFunction):
                              command=lambda: returnMain(curFrame, frame5))
     returnButton.pack()
 
-def decrypt(window, frame5, conn, mycursor, username):
+def decrypt(window, frame5, mycursor, username):
     frame5.pack_forget()
     frame9 = tk.Frame(window)
     frame9.pack()
@@ -277,11 +278,16 @@ def decrypt(window, frame5, conn, mycursor, username):
                 failT.grid(row=3, column=0, columnspan=2)
                 return
 
-            success, message = dec(userPlatform, usbDir, mycursor, username)
+            success, message, decPasswd = dec(userPlatform, usbDir, mycursor, username)
 
             if success:
-                successT = tk.Label(pathFrame, text=message)
+                successT = tk.Label(pathFrame, text="Decryption successful!", fg='#0000ff')
                 successT.grid(row=3, column=0, columnspan=2)
+                successMB = messagebox.askyesno(title="Decrypt successful!", message=message)
+                if successMB:
+                    clipboard.copy(decPasswd)
+                else:
+                    return
             else:
                 failT = tk.Label(pathFrame, text=message, fg='#ff0000')
                 failT.grid(row=3, column=0, columnspan=2)
