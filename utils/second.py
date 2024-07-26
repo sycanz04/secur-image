@@ -1,4 +1,4 @@
-from utils.secondMenu import insert, generate, decrypt, list, delete
+from utils.secondMenu import insert, generate, decrypt, delete
 from tkinter import *
 import tkinter as tk
 
@@ -24,6 +24,5 @@ def menu(window, frame2, conn, mycursor, username):
     butt1 = createButt(frame5, "Insert", lambda: insert(window, frame5, conn, mycursor, username)).pack()
     butt2 = createButt(frame5, "Generate", lambda: generate(window, frame5, conn, mycursor, username)).pack()
     butt3 = createButt(frame5, "Decrypt", lambda: decrypt(window, frame5, conn, mycursor, username)).pack()
-    butt4 = createButt(frame5, "List", lambda: list(window, frame5, conn, mycursor, username)).pack()
-    butt5 = createButt(frame5, "Delete", lambda: delete(window, frame5, conn, mycursor, username)).pack()
-    butt6 = createButt(frame5, "Insert", window.destroy).pack()
+    butt4 = createButt(frame5, "Delete", lambda: delete(window, frame5, conn, mycursor, username)).pack()
+    butt5 = createButt(frame5, "Insert", window.destroy).pack()

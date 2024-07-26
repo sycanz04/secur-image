@@ -1,12 +1,11 @@
-import pyotp
-import bcrypt
-from tkinter import *
-from tkinter import filedialog
-import tkinter as tk
-from utils.enc import enc
-from utils.gen import genPass
-from utils.dec import dec
 import os
+import pyotp
+from utils.enc import enc
+from utils.dec import dec
+from utils.gen import genPass
+import tkinter as tk
+from tkinter import *
+from tkinter import filedialog, messagebox
 
 
 ################## Basic Functions ##################
@@ -47,6 +46,11 @@ def chooseUsbDir(dirLabel):
     usbDir = filedialog.askdirectory(initialdir='/', title='Select USB location')
     if usbDir:
         dirLabel.config(text=usbDir)
+
+# Creates button
+def createButton(frame, text, command):
+    newButton = tk.Button(frame, text=text, command=command)
+    newButton.pack()
 
 ############# End of Basic Functions ###############
 
@@ -195,66 +199,9 @@ def generate(window, frame5, conn, mycursor, username):
                              command=handleGen)
     submitButton.grid(row=3, column=1)
 
-def decrypt(window, frame5, conn, mycursor, username):
-    frame5.pack_forget()
-    frame9 = tk.Frame(window)
-    frame9.pack()
-
-    # Get platform name
-    platform = prompt(frame9)
-
-    # Labels to display selected dir
-    usbDirLabel = tk.Label(frame9, text="No dir selected")
-    usbDirLabel.grid(row=1, column=0)
-
-    # Choose priv key path in USB
-    usbDirButt = tk.Button(frame9, text="Choose USB dir",
-                         command=lambda: chooseUsbDir(usbDirLabel))
-    usbDirButt.grid(row=1, column=1)
-
-    def handleDec():
-        userPlatform = platform.get()
-        usbDir = usbDirLabel.cget("text")
-
-        # Remove any existing error message
-        for widget in frame9.grid_slaves(row=3):
-            widget.destroy()
-
-        # Checks if all required fields are filled
-        if not userPlatform or "No dir selected" in usbDir:
-            errorT = tk.Label(frame9, text="*All fields are required!*", fg='#ff0000')
-            errorT.grid(row=3, column=0, columnspan=2)
-            return
-
-        if not os.path.exists(usbDir):
-            failT = tk.Label(frame9, text="The USB dir DNE!", fg='#ff0000')
-            failT.grid(row=3, column=0, columnspan=2)
-            return
-
-        success, message = dec(userPlatform, usbDir, conn, mycursor, username)
-
-        if success:
-            successT = tk.Label(frame9, text=message)
-            successT.grid(row=3, column=0, columnspan=2)
-        else:
-            failT = tk.Label(frame9, text=message, fg='#ff0000')
-            failT.grid(row=3, column=0, columnspan=2)
-
-    cancelButton = tk.Button(frame9, text="Cancel",
-                             command=lambda: returnMain(frame9, frame5))
-    cancelButton.grid(row=2, column=0)
-
-    submitButton = tk.Button(frame9, text="Done",
-                             command=handleDec)
-    submitButton.grid(row=2, column=1)
-
-def list(window, frame5, conn, mycursor, username):
-    frame5.pack_forget()
-    frame6 = tk.Frame(window)
-    frame6.pack()
-
+def list(curFrame, frame5, mycursor, username, buttFunction):
     # Display username
-    userT = tk.Label(frame6, text=username)
+    userT = tk.Label(curFrame, text=username)
     userT.pack(padx=10, pady=10)
 
     def handlelistImage():
@@ -277,16 +224,78 @@ def list(window, frame5, conn, mycursor, username):
     success, result = handlelistImage()
     if success:
         for imgId, platform in result:
-            imgList = tk.Label(frame6, text=f"Image ID: {imgId}, Platform: {platform}")
-            imgList.pack()
+            text = f"{imgId}: {platform}"
+            createButton(curFrame, text, lambda : buttFunction(platform))
     else:
-        errorLabel = tk.Label(frame6, text=result, fg='#ff0000')
+        errorLabel = tk.Label(curFrame, text=result, fg='#ff0000')
         errorLabel.pack()
 
-    returnButton = tk.Button(frame6,
-                             text='Thanks!',
-                             command=lambda: returnMain(frame6, frame5))
+    returnButton = tk.Button(curFrame, text='Thanks!',
+                             command=lambda: returnMain(curFrame, frame5))
     returnButton.pack()
+
+def decrypt(window, frame5, conn, mycursor, username):
+    frame5.pack_forget()
+    frame9 = tk.Frame(window)
+    frame9.pack()
+
+    def buttFunction(platform):
+        # Frame to retrieve key paths
+        frame9.pack_forget()
+        pathFrame = tk.Frame(window)
+        pathFrame.pack()
+
+        # Display platform name
+        platformT = tk.Label(pathFrame, text=f"Platform: {platform}")
+        platformT.grid(row=0, columnspan=2)
+
+        # Labels to display selected dir
+        usbDirLabel = tk.Label(pathFrame, text="No dir selected")
+        usbDirLabel.grid(row=1, column=0)
+
+        # Buttons to select dir in USB
+        usbDirButt = tk.Button(pathFrame, text="Choose USB dir",
+                             command=lambda: chooseUsbDir(usbDirLabel))
+        usbDirButt.grid(row=1, column=1)
+
+        def handleDec():
+            userPlatform = platform
+            usbDir = usbDirLabel.cget("text")
+
+            # Remove any existing error message
+            for widget in pathFrame.grid_slaves(row=3):
+                widget.destroy()
+
+            # Checks if all required fields are filled
+            if not userPlatform or "No dir selected" in usbDir:
+                errorT = tk.Label(pathFrame, text="*All fields are required!*", fg='#ff0000')
+                errorT.grid(row=3, column=0, columnspan=2)
+                return
+
+            if not os.path.exists(usbDir):
+                failT = tk.Label(pathFrame, text="The USB dir DNE!", fg='#ff0000')
+                failT.grid(row=3, column=0, columnspan=2)
+                return
+
+            success, message = dec(userPlatform, usbDir, mycursor, username)
+
+            if success:
+                successT = tk.Label(pathFrame, text=message)
+                successT.grid(row=3, column=0, columnspan=2)
+            else:
+                failT = tk.Label(pathFrame, text=message, fg='#ff0000')
+                failT.grid(row=3, column=0, columnspan=2)
+
+        cancelButton = tk.Button(pathFrame, text="Cancel",
+                                 command=lambda: returnMain(pathFrame, frame9))
+        cancelButton.grid(row=2, column=0)
+
+        submitButton = tk.Button(pathFrame, text="Done",
+                                 command=handleDec)
+        submitButton.grid(row=2, column=1)
+
+    list(frame9, frame5, mycursor, username, buttFunction)
+
 
 def delete(window, frame5, conn, mycursor, username):
     # Asks for platform and passwords, then finalise with OTP
@@ -294,34 +303,26 @@ def delete(window, frame5, conn, mycursor, username):
     frame10 = tk.Frame(window)
     frame10.pack()
 
-    # Get platform name and OTP
-    platformEntry = prompt(frame10)
-
-    def handleDel():
-        platform = platformEntry.get()
-
-        # Clear previous status message
-        for widget in frame10.grid_slaves(row=4):
-            widget.destroy()
+    def buttFunction(platform):
+        # OTP window
+        frame10.pack_forget()
+        otpFrame = tk.Frame(window)
+        otpFrame.pack()
 
         mycursor.execute("SELECT secretKey FROM Users WHERE username = %s", (username, ))
         row = mycursor.fetchone()
         if row:
             secretKey = row[0]
         else:
-            tk.Label(frame10, text="*User not found!*", fg='#ff0000').grid(row=4, columnspan=2)
+            tk.Label(frame10, text="*User not found!*", fg='#ff0000').pack()
             frame10.destroy()
             return
 
-        # OTP window
-        otpFrame = tk.Toplevel(frame10)
-        otpFrame.title("Verify OTP")
-
         # OTP Prompt
         otpT = tk.Label(otpFrame, text="Enter the OTP on Google Authenticator to verify you're the owner")
-        otpT.pack()
+        otpT.grid(row=0, columnspan=2)
         otpTb = tk.Entry(otpFrame, show='*')
-        otpTb.pack()
+        otpTb.grid(row=1, columnspan=2)
 
         def verifyOTP():
             otp = otpTb.get()
@@ -335,25 +336,20 @@ def delete(window, frame5, conn, mycursor, username):
                                     WHERE userId = (SELECT userId FROM Users WHERE Username = %s)
                                     AND platform = %s""",
                                     (username, platform))
-                conn.commit()
-                otpFrame.destroy()
-                successT = tk.Label(frame10, text=f"Image {platform} deleted!")
-                successT.grid(row=4, columnspan=2)
+                conn.commit() 
+                successMB = messagebox.showinfo(title="Delete Image Successful", message=f"Image {platform} deleted!")
+                returnMain(otpFrame, frame5)
             else:
-                failT = tk.Label(frame10, text="*Invalid OTP. Please try again.*", fg='#ff0000')
-                failT.grid(row=4, columnspan=2)
+                failMB = messagebox.showwarning(title="Delete Image Failed", message="*Invalid OTP. Please try again.*", fg='#ff0000')
                 otpTb.delete(0, tk.END)
 
-        # OTP submit button
-        otpButt = Button(otpFrame, text='Submit', command=verifyOTP)
-        otpButt.pack()
+        # Return and submit button
+        returnButt = Button(otpFrame, text='Return', command=lambda: returnMain(otpFrame, frame10))
+        returnButt.grid(row=2, column=0)
 
-    cancelButton = tk.Button(frame10, text="Cancel",
-                             command=lambda: returnMain(frame10, frame5))
-    cancelButton.grid(row=3, column=0)
+        submitButt = Button(otpFrame, text='Submit', command=verifyOTP)
+        submitButt.grid(row=2, column=1)
 
-    submitButton = tk.Button(frame10, text="Done",
-                             command=handleDel)
-    submitButton.grid(row=3, column=1)
+    list(frame10, frame5, mycursor, username, buttFunction)
 
 ############### End of Main Functions ###############

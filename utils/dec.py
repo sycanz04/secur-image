@@ -1,11 +1,10 @@
 import rsa
 import os
-from utils.ver import ver
 from utils.hide import extract
 import tkinter.simpledialog
 
 
-def dec(platform, usbDir, conn, mycursor, username):
+def dec(platform, usbDir, mycursor, username):
     # Query userId
     mycursor.execute("SELECT userId FROM Users WHERE username = %s", (username,))
     userIdRows = mycursor.fetchone()
